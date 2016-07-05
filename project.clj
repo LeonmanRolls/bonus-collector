@@ -15,7 +15,10 @@
                  [environ "1.0.3"]
                  [org.omcljs/om "1.0.0-alpha36"]
 
-                 [reaver "0.1.2"]]
+                 [reaver "0.1.2"]
+                 [net.sourceforge.htmlunit/htmlunit "2.22"]
+
+                 ]
 
   :plugins [[lein-cljsbuild "1.1.3"]
             [lein-environ "1.0.3"]]
