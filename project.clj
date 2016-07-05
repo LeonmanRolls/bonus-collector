@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha8"]
                  [org.clojure/clojurescript "1.9.89" :scope "provided"]
                  [com.cognitect/transit-clj "0.8.285"]
                  [ring "1.4.0"]
@@ -13,7 +13,9 @@
                  [ring.middleware.logger "0.5.0"]
                  [compojure "1.5.0"]
                  [environ "1.0.3"]
-                 [org.omcljs/om "1.0.0-alpha36"]]
+                 [org.omcljs/om "1.0.0-alpha36"]
+
+                 [reaver "0.1.2"]]
 
   :plugins [[lein-cljsbuild "1.1.3"]
             [lein-environ "1.0.3"]]
