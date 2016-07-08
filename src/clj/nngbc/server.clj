@@ -42,8 +42,18 @@
 (s/def ::html-division-coll
   (s/with-gen
     (s/coll-of #(instance? com.gargoylesoftware.htmlunit.html.HtmlDivision %))
-    (fn [] #{[   ]})
-    )
+    (fn [] #{[(html-division-gen)]})))
+
+(s/def ::title string?)
+
+(s/def ::img-url
+  (s/with-gen
+    #(nil? (re-find #"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*\.(?:jpg|gif|png))(?:\?([^#]*))?(?:#(.*))?" %))
+    (fn [] #{"https://zdnfarmtwo3-a.akamaihd.net/assets/icons/icon_buildable_racing_yak_flag_cogs-b36350ea1d3d34cd8adacac1afcd7c80.png"})))
+
+(comment
+
+  #(nil? (re-find #"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*\.(?:jpg|gif|png))(?:\?([^#]*))?(?:#(.*))?" %))
 
   )
 
@@ -64,11 +74,11 @@
 
                      (println "web window opened: " event))))
 
-(s/fdef parse-raw-url
+(s/fdef raw-url->bonus-url
         :args ::bonus-url-string
         :ret ::bonus-url-string)
 
-(defn parse-raw-url [url-string]
+(defn raw-url->bonus-url [url-string]
       (->
         url-string
         url
@@ -89,27 +99,122 @@
         :ret (s/coll-of #(instance? com.gargoylesoftware.htmlunit.html.HtmlDivision %)))
 
 (defn get-gameskip-bonuses []
-      (->
-        (new WebClient BrowserVersion/FIREFOX_38)
-        (.getPage "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
-        (.getBody)
-        (.getByXPath "//div[@class=\"title box\"]")
-        (as-> x (into [] x))))
+      (let [bonuses (atom [])
+            web-client (new WebClient BrowserVersion/FIREFOX_38)
+            html-divisions  (->
+                              web-client
+                              (.getPage "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
+                              (.getBody)
+                              (.getByXPath "//div[@class=\"title box\"]"))
+            _ (doall
+                (map
+                  (fn [html-division]
+                      (let [_ (.click html-division)
+                            raw-url (window->raw-url (last (.getTopLevelWindows web-client)))
+                            bonus-url (raw-url->bonus-url raw-url)
+                            img-div (first (.getByXPath html-division "./table/tbody/tr/td/div/img"))
+                            title (.getAltAttribute img-div)
+                            img-url (get (:query (url (.getAttribute img-div "data-original"))) "url")]
+
+                           (swap! bonuses conj {::bonus-url-string bonus-url
+                                                ::title title
+                                                ::img-url img-url})
+                           (.close (last (.getTopLevelWindows web-client)))))
+                  (take 2 html-divisions)))]
+           @bonuses))
 
 (comment
 
+  (def tst (get-gameskip-bonuses))
+
+  (def bonuses (atom []))
+
+  (def web-client (new WebClient BrowserVersion/FIREFOX_38))
+
+  (def html-divisions (->
+                        web-client
+                        (.getPage "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
+                        (.getBody)
+                        (.getByXPath "//div[@class=\"title box\"]")))
+
+  (def testing (doall
+                 (map
+                   (fn [html-division]
+                       (let [_ (.click html-division)
+                             raw-url (window->raw-url (last (.getTopLevelWindows web-client)))
+                             bonus-url (raw-url->bonus-url raw-url)
+                             img-div (first (.getByXPath html-division "./table/tbody/tr/td/div/img"))
+                             title (.getAltAttribute img-div)
+                             img-url (get (:query (url (.getAttribute img-div "data-original"))) "url")]
+
+                            (swap! bonuses conj {:bonus-url bonus-url
+                                                 :title title
+                                                 :img-url img-url})
+                            (.close (last (.getTopLevelWindows web-client)))))
+                   (take 2 html-divisions))))
+
+  @bonuses
+
+  testing
+  (first testing)
+
+  (def mmmm (first html-divisions))
+
+  mmmm
+
+  (def img-div (first (.getByXPath mmmm "./table/tbody/tr/td/div/img")))
+
+  img-div
+
+  (.getAltAttribute img-div)
+
+  (get (:query (url (.getAttribute img-div "data-original"))) "url")
 
 
 
-  (as-> x (into [] x))
+  (def testing (get-gameskip-bonuses))
 
-  (def html-division (first (get-gameskip-bonuses)))
+  (s/coll-of #(instance? com.gargoylesoftware.htmlunit.html.HtmlDivision %))
 
-  (type html-division)
+  (s/valid?
+    (s/coll-of ::bonus-url-string)
+    (map parse-raw-url testing))
 
-  (read-string (pr-str html-division))
+  (.click (nth html-divisions 0))
+  (swap! raw-urls conj (window->raw-url (last (.getTopLevelWindows web-client))))
+  (.close (last (.getTopLevelWindows web-client)))
+
+
+  (.click (nth html-divisions 1))
+  (swap! raw-urls conj (window->raw-url (last (.getTopLevelWindows web-client))))
+  (.close (last (.getTopLevelWindows web-client)))
+
+  (.click (nth html-divisions 2))
+  (.close (last (.getTopLevelWindows web-client)))
+
+  (count @raw-urls)
+
+  (.getCurrentWindow web-client)
+
+ testing
+
+  (.click (nth testing 1))
 
   (map
+    #(.click %)
+    testing)
+
+  (.click testing)
+
+  (last (.getTopLevelWindows web-client))
+
+  testing
+
+  (map
+    (fn [x]
+        (.click x)
+        (.close (last (.getTopLevelWindows web-client)))
+        )
     (get-gameskip-bonuses))
 
   (.getTopLevelWindows web-client)
