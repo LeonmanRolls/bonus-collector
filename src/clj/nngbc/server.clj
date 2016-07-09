@@ -12,9 +12,26 @@
       [clojure.spec :as s]
       [clojure.spec.test :as ts]
       [clojure.spec.gen :as gen]
-      [cemerick.url :refer (url url-encode)])
+      [cemerick.url :refer (url url-encode)]
+      [clojure.java.jdbc :as jdbc])
     (:gen-class))
 
+(def mysql-db
+  (or
+    (System/getenv "DATABASE_URL")
+    {:subprotocol "postgresql"
+     :subname "//localhost:5432/nngbc"
+     :user "postgres"
+     :password "1fishy4me"}))
+
+(comment
+  (def rslt (jdbc/query mysql-db ["SELECT * from games"]))
+
+  (type (:gameid (first rslt)))
+  (long (:gameid (first rslt)))
+
+
+  )
 
 ;Value gens ==============================================================================
 
@@ -58,7 +75,27 @@
     (fn [] (s/gen #{"https://zdnfarmtwo3-a.akamaihd.net/assets/icons/icon_buildable_racing_yak_flag_cogs-b36350ea1d3d34cd8adacac1afcd7c80.png"
                     "https://zdnfarmtwo3-a.akamaihd.net/assets/icons/icon_buildable_racing_yak_flag_cogs-b36350ea1d3d34cd8adacac1afcd7c80.jpg"}))))
 
-(s/def ::bonus (s/keys :req [::bonus-url-string ::title ::img-url ::timestamp]))
+(s/def ::gameid
+  (s/with-gen
+    #(instance? java.lang.Long %)
+    (fn [] (s/gen #{321574327904696}))))
+
+(s/def ::bonus (s/keys :req [::bonus-url-string ::title ::img-url ::timestamp ::gameid]))
+
+(s/def ::bonuses (s/coll-of ::bonus))
+
+(s/def ::gameskip-url
+  (s/with-gen
+    #(not (nil? (re-find #"gameskip.com" %)))
+    (fn [] (s/gen #{"https://gameskip.com/farmville-2-links/non-friend-bonus.html"}))))
+
+
+
+(comment
+
+  #(re-find #"gameskip.com" %)
+
+  )
 
 ;=========================================================================================
 ;(.addWebWindowListener web-client listen)
@@ -103,14 +140,15 @@
       (.toString (.getBaseURL (.getEnclosedPage window))))
 
 (s/fdef get-gameskip-bonuses
-        :ret ::bonus)
+        :args (s/cat ::gameskip-url ::gameid)
+        :ret ::bonuses)
 
-(defn get-gameskip-bonuses []
+(defn get-gameskip-bonuses [gameskip-url gameid]
       (let [bonuses (atom [])
             web-client (new WebClient BrowserVersion/FIREFOX_38)
             html-divisions  (->
                               web-client
-                              (.getPage "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
+                              (.getPage gameskip-url)
                               (.getBody)
                               (.getByXPath "//div[@class=\"title box\"]"))
             _ (doall
@@ -125,14 +163,38 @@
 
                            (swap! bonuses conj {::bonus-url-string bonus-url
                                                 ::title title
-                                                ::img-url img-url})
+                                                ::img-url img-url
+                                                ::timestamp (time-stamp)
+                                                ::gameid gameid})
                            (.close (last (.getTopLevelWindows web-client)))))
-                  html-divisions))]
+                  (take 2 html-divisions)))]
            @bonuses))
+
+(s/fdef get-all-gamedata
+        :ret ::bonus)
+
+(defn get-all-gamedata []
+
+
+      )
 
 (comment
 
-  (def tst (get-gameskip-bonuses))
+  (def urlz "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
+
+  #(re-find #"gameskip.com" %)
+
+  ;gamename gameid
+
+  (def tst (get-gameskip-bonuses
+             "https://gameskip.com/farmville-2-links/non-friend-bonus.html"
+             321574327904696))
+
+  (first tst)
+
+  (::bonus-url-string (first tst))
+
+  tst
 
   (def bonuses (atom []))
 

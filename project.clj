@@ -19,6 +19,8 @@
                  [net.sourceforge.htmlunit/htmlunit "2.22"]
                  [com.cemerick/url "0.1.1"]
                  [org.clojure/test.check "0.9.0" :scope "test"]
+                 [org.clojure/java.jdbc "0.3.6"]
+                 [postgresql "9.1-901-1.jdbc4"]
 
                  ]
 
