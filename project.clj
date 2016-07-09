@@ -18,6 +18,7 @@
                  [reaver "0.1.2"]
                  [net.sourceforge.htmlunit/htmlunit "2.22"]
                  [com.cemerick/url "0.1.1"]
+                 [org.clojure/test.check "0.9.0" :scope "test"]
 
                  ]
 

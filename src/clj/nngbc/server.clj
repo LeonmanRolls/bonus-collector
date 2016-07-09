@@ -15,6 +15,7 @@
       [cemerick.url :refer (url url-encode)])
     (:gen-class))
 
+
 ;Value gens ==============================================================================
 
 (defn html-division-gen []
@@ -32,33 +33,34 @@
 (s/def ::bonus-url-string
   (s/with-gen
     #(not (nil? (:query (url %))))
-    (fn [] #{"https://apps.facebook.com/farmville-two/viral.php?viralId=be012f04287d1360de69368f70369268_33671037398"})))
+    (fn [] (s/gen #{"https://apps.facebook.com/farmville-two/viral.php?viralId=be012f04287d1360de69368f70369268_33671037398"}))))
 
 (s/def ::window
   (s/with-gen
     #(instance? com.gargoylesoftware.htmlunit.TopLevelWindow %)
-    (fn [] #{(-> (new WebClient) (.getTopLevelWindows))})))
+    (fn [](s/gen #{(last (-> (new WebClient) (.getTopLevelWindows)))}))))
 
 (s/def ::html-division-coll
   (s/with-gen
     (s/coll-of #(instance? com.gargoylesoftware.htmlunit.html.HtmlDivision %))
-    (fn [] #{[(html-division-gen)]})))
+    (fn [] (s/gen #{[(html-division-gen)]}))))
 
 (s/def ::title string?)
 
+(s/def ::timestamp
+  (s/with-gen
+    #(instance? java.lang.Long %)
+    (fn [] (s/gen #{1468028021}))))
+
 (s/def ::img-url
   (s/with-gen
-    #(nil? (re-find #"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*\.(?:jpg|gif|png))(?:\?([^#]*))?(?:#(.*))?" %))
-    (fn [] #{"https://zdnfarmtwo3-a.akamaihd.net/assets/icons/icon_buildable_racing_yak_flag_cogs-b36350ea1d3d34cd8adacac1afcd7c80.png"})))
+    #(not (nil? (re-find #"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*\.(?:jpg|gif|png))(?:\?([^#]*))?(?:#(.*))?" %)))
+    (fn [] (s/gen #{"https://zdnfarmtwo3-a.akamaihd.net/assets/icons/icon_buildable_racing_yak_flag_cogs-b36350ea1d3d34cd8adacac1afcd7c80.png"
+                    "https://zdnfarmtwo3-a.akamaihd.net/assets/icons/icon_buildable_racing_yak_flag_cogs-b36350ea1d3d34cd8adacac1afcd7c80.jpg"}))))
 
-(comment
-
-  #(nil? (re-find #"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*\.(?:jpg|gif|png))(?:\?([^#]*))?(?:#(.*))?" %))
-
-  )
+(s/def ::bonus (s/keys :req [::bonus-url-string ::title ::img-url ::timestamp]))
 
 ;=========================================================================================
-
 ;(.addWebWindowListener web-client listen)
 (def window-listener
   (reify
@@ -73,6 +75,11 @@
     (webWindowOpened [this event]
 
                      (println "web window opened: " event))))
+
+(s/fdef time-stamp
+        :ret #(instance? java.lang.Long %))
+
+(defn time-stamp [] (quot (System/currentTimeMillis) 1000))
 
 (s/fdef raw-url->bonus-url
         :args ::bonus-url-string
@@ -96,7 +103,7 @@
       (.toString (.getBaseURL (.getEnclosedPage window))))
 
 (s/fdef get-gameskip-bonuses
-        :ret (s/coll-of #(instance? com.gargoylesoftware.htmlunit.html.HtmlDivision %)))
+        :ret ::bonus)
 
 (defn get-gameskip-bonuses []
       (let [bonuses (atom [])
@@ -120,7 +127,7 @@
                                                 ::title title
                                                 ::img-url img-url})
                            (.close (last (.getTopLevelWindows web-client)))))
-                  (take 2 html-divisions)))]
+                  html-divisions))]
            @bonuses))
 
 (comment
