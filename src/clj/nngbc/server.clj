@@ -177,12 +177,22 @@
                   (println "Exception, presumably bonus primary key "))))
           bonuses)))
 
+(defn get-all-bonuses []
+      (jdbc/query mysql-db ["SELECT * from bonuses limit 10"]))
+
 (defroutes routes
-  (GET "/" _
-    {:status 200
-     :headers {"Content-Type" "text/html; charset=utf-8"}
-     :body (io/input-stream (io/resource "public/index.html"))})
-  (resources "/"))
+
+           (GET "/" _
+                {:status 200
+                 :headers {"Content-Type" "text/html; charset=utf-8"}
+                 :body (io/input-stream (io/resource "public/index.html"))})
+
+           (GET "/bonuses" _
+                {:status 200
+                 :headers {"Content-Type" "text/html; charset=utf-8"}
+                 :body (get-all-bonuses)})
+
+           (resources "/"))
 
 (def http-handler
   (-> routes
