@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
-  :dependencies [[org.clojure/clojure "1.9.0-alpha8"]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha9"]
                  [org.clojure/clojurescript "1.9.89" :scope "provided"]
                  [com.cognitect/transit-clj "0.8.285"]
                  [ring "1.4.0"]
@@ -19,7 +19,7 @@
                  [net.sourceforge.htmlunit/htmlunit "2.22"]
                  [com.cemerick/url "0.1.1"]
                  [org.clojure/test.check "0.9.0" :scope "test"]
-                 [org.clojure/java.jdbc "0.3.6"]
+                 [org.clojure/java.jdbc "0.6.2-alpha1"]
                  [postgresql "9.1-901-1.jdbc4"]
 
                  ]

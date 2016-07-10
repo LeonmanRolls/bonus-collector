@@ -10,7 +10,7 @@
       [ring.adapter.jetty :refer [run-jetty]]
       ;   [reaver :refer [parse extract-from text attr]]
       [clojure.spec :as s]
-      [clojure.spec.test :as ts]
+      [clojure.spec.test :as ts :refer [check]]
       [clojure.spec.gen :as gen]
       [cemerick.url :refer (url url-encode)]
       [clojure.java.jdbc :as jdbc])
@@ -24,15 +24,6 @@
      :user "postgres"
      :password "1fishy4me"}))
 
-(comment
-  (def rslt (jdbc/query mysql-db ["SELECT * from games"]))
-
-  (type (:gameid (first rslt)))
-  (long (:gameid (first rslt)))
-
-
-  )
-
 ;Value gens ==============================================================================
 
 (defn html-division-gen []
@@ -43,19 +34,24 @@
           (.getByXPath "//div[@class=\"ctr-p\"]")
           first))
 
-;=========================================================================================
-
 ;Types ===================================================================================
 
-(s/def ::bonus-url-string
+(s/def ::bonus_url_string
   (s/with-gen
     #(not (nil? (:query (url %))))
     (fn [] (s/gen #{"https://apps.facebook.com/farmville-two/viral.php?viralId=be012f04287d1360de69368f70369268_33671037398"}))))
 
+(s/def ::raw_url_string
+  (s/with-gen
+    #(not (nil? (:query (url %))))
+    (fn [] (s/gen #{"https://www.facebook.com/login.php?skip_api_login=1&api_key=321574327904696&signed_next=1&next=https%3A%2F%2Fwww.facebook.com%2Fv2.0%2Fdialog%2Foauth%3Fredirect_uri%3Dhttps%253A%252F%252Fapps.facebook.com%252Ffarmville-two%252Fviral.php%253FviralId%253D5c88d281e966fba5a1c39e1f694ae326_31119553664%2526amp%25253Bh%253D-AQFez6YC%2526amp%25253Benc%253DAZO3rIVVOFtpYIkLifXyRJqDHIhGqw0ob1w_nZE0SW2oB9LR1AduzBrTdfprK9UhApnJItVCcmP6CfgOEEqMG5eNnkb03LWq3pWCABjgVwSAlFifQug6N0kDbdYVw_7e3%26state%3Dae22dc5cc750b87517687e2eaf391bde%26scope%3Duser_friends%252Cemail%252Cuser_birthday%252Cpublish_actions%26client_id%3D321574327904696%26ret%3Dlogin%26logger_id%3Dfcb12011-90fb-4ea7-9491-4af26122fce9&cancel_url=https%3A%2F%2Fapps.facebook.com%2Ffarmville-two%2Fviral.php%3FviralId%3D5c88d281e966fba5a1c39e1f694ae326_31119553664%26amp%253Bh%3D-AQFez6YC%26amp%253Benc%3DAZO3rIVVOFtpYIkLifXyRJqDHIhGqw0ob1w_nZE0SW2oB9LR1AduzBrTdfprK9UhApnJItVCcmP6CfgOEEqMG5eNnkb03LWq3pWCABjgVwSAlFifQug6N0kDbdYVw_7e3%26error%3Daccess_denied%26error_code%3D200%26error_description%3DPermissions%2Berror%26error_reason%3Duser_denied%26state%3Dae22dc5cc750b87517687e2eaf391bde%23_%3D_&display=page&locale=zh_TW&logger_id=fcb12011-90fb-4ea7-9491-4af26122fce9"}))))
+
 (s/def ::window
   (s/with-gen
     #(instance? com.gargoylesoftware.htmlunit.TopLevelWindow %)
-    (fn [](s/gen #{(last (-> (new WebClient) (.getTopLevelWindows)))}))))
+    (fn [](s/gen #{(let [web-client (new WebClient)]
+                        (.getPage web-client "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
+                        (last (.getTopLevelWindows web-client)))}))))
 
 (s/def ::html-division-coll
   (s/with-gen
@@ -69,7 +65,7 @@
     #(instance? java.lang.Long %)
     (fn [] (s/gen #{1468028021}))))
 
-(s/def ::img-url
+(s/def ::img_url
   (s/with-gen
     #(not (nil? (re-find #"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*\.(?:jpg|gif|png))(?:\?([^#]*))?(?:#(.*))?" %)))
     (fn [] (s/gen #{"https://zdnfarmtwo3-a.akamaihd.net/assets/icons/icon_buildable_racing_yak_flag_cogs-b36350ea1d3d34cd8adacac1afcd7c80.png"
@@ -80,7 +76,9 @@
     #(instance? java.lang.Long %)
     (fn [] (s/gen #{321574327904696}))))
 
-(s/def ::bonus (s/keys :req [::bonus-url-string ::title ::img-url ::timestamp ::gameid]))
+(s/def ::gamename string?)
+
+(s/def ::bonus (s/keys :req [::bonus_url_string ::title ::img_url ::timestamp ::gameid]))
 
 (s/def ::bonuses (s/coll-of ::bonus))
 
@@ -89,16 +87,12 @@
     #(not (nil? (re-find #"gameskip.com" %)))
     (fn [] (s/gen #{"https://gameskip.com/farmville-2-links/non-friend-bonus.html"}))))
 
+(s/def ::gamedata (s/keys :req-un [::gamename ::gameid ::gameskip-url]))
 
-
-(comment
-
-  #(re-find #"gameskip.com" %)
-
-  )
+(s/def ::gamedatas (s/coll-of ::gamedata))
 
 ;=========================================================================================
-;(.addWebWindowListener web-client listen)
+
 (def window-listener
   (reify
     WebWindowListener
@@ -113,14 +107,11 @@
 
                      (println "web window opened: " event))))
 
-(s/fdef time-stamp
-        :ret #(instance? java.lang.Long %))
-
 (defn time-stamp [] (quot (System/currentTimeMillis) 1000))
 
 (s/fdef raw-url->bonus-url
-        :args ::bonus-url-string
-        :ret ::bonus-url-string)
+        :args (s/cat :raw-url ::raw_url_string)
+        :ret  ::bonus_url_string)
 
 (defn raw-url->bonus-url [url-string]
       (->
@@ -133,14 +124,14 @@
         (get "redirect_uri")))
 
 (s/fdef window->raw-url
-        :args ::window
-        :ret ::bonus-url-string)
+        :args (s/cat :window ::window)
+        :ret string?)
 
 (defn window->raw-url [window]
       (.toString (.getBaseURL (.getEnclosedPage window))))
 
 (s/fdef get-gameskip-bonuses
-        :args (s/cat ::gameskip-url ::gameid)
+        :args (s/cat :gameskip-url ::gameskip-url :gameid ::gameid)
         :ret ::bonuses)
 
 (defn get-gameskip-bonuses [gameskip-url gameid]
@@ -161,183 +152,30 @@
                             title (.getAltAttribute img-div)
                             img-url (get (:query (url (.getAttribute img-div "data-original"))) "url")]
 
-                           (swap! bonuses conj {::bonus-url-string bonus-url
+                           (swap! bonuses conj {::bonus_url_string bonus-url
                                                 ::title title
-                                                ::img-url img-url
+                                                ::img_url img-url
                                                 ::timestamp (time-stamp)
                                                 ::gameid gameid})
                            (.close (last (.getTopLevelWindows web-client)))))
                   (take 2 html-divisions)))]
            @bonuses))
 
-(s/fdef get-all-gamedata
-        :ret ::bonus)
-
 (defn get-all-gamedata []
-
-
-      )
-
-(comment
-
-  (def urlz "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
-
-  #(re-find #"gameskip.com" %)
-
-  ;gamename gameid
-
-  (def tst (get-gameskip-bonuses
-             "https://gameskip.com/farmville-2-links/non-friend-bonus.html"
-             321574327904696))
-
-  (first tst)
-
-  (::bonus-url-string (first tst))
-
-  tst
-
-  (def bonuses (atom []))
-
-  (def web-client (new WebClient BrowserVersion/FIREFOX_38))
-
-  (def html-divisions (->
-                        web-client
-                        (.getPage "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
-                        (.getBody)
-                        (.getByXPath "//div[@class=\"title box\"]")))
-
-  (def testing (doall
-                 (map
-                   (fn [html-division]
-                       (let [_ (.click html-division)
-                             raw-url (window->raw-url (last (.getTopLevelWindows web-client)))
-                             bonus-url (raw-url->bonus-url raw-url)
-                             img-div (first (.getByXPath html-division "./table/tbody/tr/td/div/img"))
-                             title (.getAltAttribute img-div)
-                             img-url (get (:query (url (.getAttribute img-div "data-original"))) "url")]
-
-                            (swap! bonuses conj {:bonus-url bonus-url
-                                                 :title title
-                                                 :img-url img-url})
-                            (.close (last (.getTopLevelWindows web-client)))))
-                   (take 2 html-divisions))))
-
-  @bonuses
-
-  testing
-  (first testing)
-
-  (def mmmm (first html-divisions))
-
-  mmmm
-
-  (def img-div (first (.getByXPath mmmm "./table/tbody/tr/td/div/img")))
-
-  img-div
-
-  (.getAltAttribute img-div)
-
-  (get (:query (url (.getAttribute img-div "data-original"))) "url")
-
-
-
-  (def testing (get-gameskip-bonuses))
-
-  (s/coll-of #(instance? com.gargoylesoftware.htmlunit.html.HtmlDivision %))
-
-  (s/valid?
-    (s/coll-of ::bonus-url-string)
-    (map parse-raw-url testing))
-
-  (.click (nth html-divisions 0))
-  (swap! raw-urls conj (window->raw-url (last (.getTopLevelWindows web-client))))
-  (.close (last (.getTopLevelWindows web-client)))
-
-
-  (.click (nth html-divisions 1))
-  (swap! raw-urls conj (window->raw-url (last (.getTopLevelWindows web-client))))
-  (.close (last (.getTopLevelWindows web-client)))
-
-  (.click (nth html-divisions 2))
-  (.close (last (.getTopLevelWindows web-client)))
-
-  (count @raw-urls)
-
-  (.getCurrentWindow web-client)
-
- testing
-
-  (.click (nth testing 1))
-
-  (map
-    #(.click %)
-    testing)
-
-  (.click testing)
-
-  (last (.getTopLevelWindows web-client))
-
-  testing
-
-  (map
-    (fn [x]
-        (.click x)
-        (.close (last (.getTopLevelWindows web-client)))
-        )
-    (get-gameskip-bonuses))
-
-  (.getTopLevelWindows web-client)
-
-  (-> (nth bonuses 2) (.click))
-
-  (type (last (.getTopLevelWindows web-client)))
-
-  (instance? com.gargoylesoftware.htmlunit.TopLevelWindow (last (.getTopLevelWindows web-client)))
-
-  (def test-url (.toString (.getBaseURL (.getEnclosedPage (last (.getTopLevelWindows web-client))))))
-  test-url
-
-  (s/valid? ::window (last (.getTopLevelWindows web-client)))
-
-  (get (:query (url (get (:query (url test-url)) "next"))) "redirect_uri")
-
-  (.close (last (.getTopLevelWindows web-client)))
-
-  (def raw-links (map #(.click %) (take 4 bonuses)))
-
-  (def raw-links-urls (map #(.getUrl %) raw-links))
-
-  (def string-urls (map #(.toString %) raw-links-urls) )
-
-  (nth string-urls 0)
-  (nth string-urls 1)
-
-  raw-links
-
-  (.toString (first raw-links-urls))
-
-  (take 5 bonuses)
-  bonuses
-
-  (first bonuses)
-
-  (count bonuses)
-
-  (count (-> web-client (.getWebWindows)))
-
-  (-> web-client (.getTopLevelWindows))
-  (count (-> web-client (.getTopLevelWindows)))
-
-  (def criminal-case (slurp "http://www.baronstrainers.com/Criminal.Case.Teammates/"))
-
-  (def farmville-two (slurp ""))
-
-  (extract-from (parse criminal-case) ".container center a"
-                [:url :img]
-                "a" (attr :href)
-                "img" (attr :src))
-
-  )
+      (jdbc/query mysql-db ["SELECT * from games"]))
+
+(s/fdef insert-bonuses!
+        :args (s/cat :bonuses ::bonuses))
+
+(defn insert-bonuses! [bonuses]
+      (doall
+        (map
+          (fn [bonus]
+              (try
+                (jdbc/insert! mysql-db :bonuses bonus)
+                (catch Exception e
+                  (println "Exception, presumably bonus primary key "))))
+          bonuses)))
 
 (defroutes routes
   (GET "/" _
@@ -353,7 +191,7 @@
       wrap-gzip))
 
 (defn -main [& [port]]
-  (let [port (Integer. (or port (env :port) 10555))]
-    (run-jetty http-handler {:port port :join? false})))
-
+      (ts/instrument)
+      (let [port (Integer. (or port (env :port) 10555))]
+           (run-jetty http-handler {:port port :join? false})))
 
