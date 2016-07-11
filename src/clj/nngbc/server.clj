@@ -1,6 +1,8 @@
 (ns nngbc.server
     (:import (com.gargoylesoftware.htmlunit WebClient BrowserVersion WebWindowListener))
-    (:require [clojure.java.io :as io]
+    (:require
+      [nngbc.common :as cmn]
+      [clojure.java.io :as io]
       [compojure.core :refer [ANY GET PUT POST DELETE defroutes]]
       [compojure.route :refer [resources]]
       [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
@@ -36,11 +38,6 @@
 
 ;Types ===================================================================================
 
-(s/def ::bonus_url_string
-  (s/with-gen
-    #(not (nil? (:query (url %))))
-    (fn [] (s/gen #{"https://apps.facebook.com/farmville-two/viral.php?viralId=be012f04287d1360de69368f70369268_33671037398"}))))
-
 (s/def ::raw_url_string
   (s/with-gen
     #(not (nil? (:query (url %))))
@@ -58,36 +55,14 @@
     (s/coll-of #(instance? com.gargoylesoftware.htmlunit.html.HtmlDivision %))
     (fn [] (s/gen #{[(html-division-gen)]}))))
 
-(s/def ::title string?)
-
-(s/def ::timestamp
-  (s/with-gen
-    #(instance? java.lang.Long %)
-    (fn [] (s/gen #{1468028021}))))
-
-(s/def ::img_url
-  (s/with-gen
-    #(not (nil? (re-find #"(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*\.(?:jpg|gif|png))(?:\?([^#]*))?(?:#(.*))?" %)))
-    (fn [] (s/gen #{"https://zdnfarmtwo3-a.akamaihd.net/assets/icons/icon_buildable_racing_yak_flag_cogs-b36350ea1d3d34cd8adacac1afcd7c80.png"
-                    "https://zdnfarmtwo3-a.akamaihd.net/assets/icons/icon_buildable_racing_yak_flag_cogs-b36350ea1d3d34cd8adacac1afcd7c80.jpg"}))))
-
-(s/def ::gameid
-  (s/with-gen
-    #(instance? java.lang.Long %)
-    (fn [] (s/gen #{321574327904696}))))
-
 (s/def ::gamename string?)
-
-(s/def ::bonus (s/keys :req [::bonus_url_string ::title ::img_url ::timestamp ::gameid]))
-
-(s/def ::bonuses (s/coll-of ::bonus))
 
 (s/def ::gameskip-url
   (s/with-gen
     #(not (nil? (re-find #"gameskip.com" %)))
     (fn [] (s/gen #{"https://gameskip.com/farmville-2-links/non-friend-bonus.html"}))))
 
-(s/def ::gamedata (s/keys :req-un [::gamename ::gameid ::gameskip-url]))
+(s/def ::gamedata (s/keys :req-un [::gamename ::cmn/gameid ::gameskip-url]))
 
 (s/def ::gamedatas (s/coll-of ::gamedata))
 
@@ -111,7 +86,7 @@
 
 (s/fdef raw-url->bonus-url
         :args (s/cat :raw-url ::raw_url_string)
-        :ret  ::bonus_url_string)
+        :ret  ::cmn/bonus_url_string)
 
 (defn raw-url->bonus-url [url-string]
       (->
@@ -131,8 +106,8 @@
       (.toString (.getBaseURL (.getEnclosedPage window))))
 
 (s/fdef get-gameskip-bonuses
-        :args (s/cat :gameskip-url ::gameskip-url :gameid ::gameid)
-        :ret ::bonuses)
+        :args (s/cat :gameskip-url ::gameskip-url :gameid ::cmn/gameid)
+        :ret ::cmn/bonuses)
 
 (defn get-gameskip-bonuses [gameskip-url gameid]
       (let [bonuses (atom [])
@@ -152,11 +127,11 @@
                             title (.getAltAttribute img-div)
                             img-url (get (:query (url (.getAttribute img-div "data-original"))) "url")]
 
-                           (swap! bonuses conj {::bonus_url_string bonus-url
-                                                ::title title
-                                                ::img_url img-url
-                                                ::timestamp (time-stamp)
-                                                ::gameid gameid})
+                           (swap! bonuses conj {::cmn/bonus_url_string bonus-url
+                                                ::cmn/title title
+                                                ::cmn/img_url img-url
+                                                ::cmn/timestamp (time-stamp)
+                                                ::cmn/gameid gameid})
                            (.close (last (.getTopLevelWindows web-client)))))
                   (take 2 html-divisions)))]
            @bonuses))
@@ -165,7 +140,7 @@
       (jdbc/query mysql-db ["SELECT * from games"]))
 
 (s/fdef insert-bonuses!
-        :args (s/cat :bonuses ::bonuses))
+        :args (s/cat :bonuses ::cmn/bonuses))
 
 (defn insert-bonuses! [bonuses]
       (doall

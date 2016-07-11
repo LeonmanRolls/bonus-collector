@@ -1,6 +1,12 @@
 (ns nngbc.core-test
   (:require-macros [cljs.test :refer (is deftest testing)])
-  (:require [cljs.test]))
+  (:require
+    [nngbc.core :refer (header)]
+    [cljs.test]
+    [cljs.spec.test :as ts]))
 
-(deftest example-passing-test
+#_(deftest example-passing-test
   (is (= 1 1)))
+(println "hi there")
+(println (ts/run-all-tests))
+

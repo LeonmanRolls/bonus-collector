@@ -21,6 +21,7 @@
                  [org.clojure/test.check "0.9.0" :scope "test"]
                  [org.clojure/java.jdbc "0.6.2-alpha1"]
                  [postgresql "9.1-901-1.jdbc4"]
+                 [cljs-ajax "0.5.8"]
 
                  ]
 

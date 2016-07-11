@@ -1,3 +1,234 @@
-h1 {
-  text-decoration: underline;
+.search-header {
+    float: left;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #363636;
+    z-index: 10;
 }
+
+.search-header .logo {
+float: left;
+    width: 100%;
+    width: 70px;
+    height: 70px;
+    text-align: center;
+    position: relative;
+    display: block;
+    background-image: url(/img/gift_logo.png);
+}
+
+.simple-sidebar {
+    list-style-type: none;
+    position: fixed;
+    left: 0;
+    top: 70px;
+    width: 70px;
+    background: #363636;
+    z-index: 9;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    padding-top: 5px;
+}
+
+.simple-sidebar li div{
+display:inline-block;
+    font-size: 50px;
+    line-height: 70px;
+    color:white;
+    width: 70px;
+    height: 70px;
+    text-align: center;
+    vertical-align: bottom;
+}
+
+.main-container {
+margin-left: 60px;
+}
+
+.artist-songs-container {
+  float: left;
+  width: 100%;
+  background: white;
+  padding: 0px 30px 0px;
+  position: relative;
+}
+
+.artist-songs-container h6 {
+  float: left;
+  width: 100%;
+  color: #b2b2b2;
+  font-family: "Montserrat", Arial, sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 38px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 10px 0 0;
+}
+
+.artist-songs-container h3 {
+  float: left;
+  width: 100%;
+  color: #303030;
+  font-family: "Merriweather", Arial, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28px;
+  margin: 0 0 20px;
+}
+
+.song-title {
+  float: left;
+  width: 100%;
+  color: #303030;
+  text-decoration: none;
+  font-family: "Merriweather", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 28px;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+  white-space: nowrap;
+}
+
+.bonus {
+ text-align: center;
+}
+
+.bonus-img {
+ width: 128px;
+ height: 128px;
+}
+
+.message {
+margin-top: 70px;
+margin-left: 70px;
+min-height: 90px;
+background-image: url('/img/repeating_gifts_two.png');
+background-repeat: repeat;
+}
+
+.no-message-img {
+z-index: 0;
+position: absolute;
+margin-left: auto;
+margin-right: auto;
+left: 0;
+right: 0;
+padding-left: 70px;
+}
+
+.sidebar-a{
+color: white;
+}
+
+.link-input{
+outline-width: 0;
+border: none;
+border-bottom: solid 12px #656565;
+width: 100%;
+padding: 16px 16px;
+background: #363636;
+color: white;
+text-transform: uppercase;
+font-weight: bold;
+}
+
+.link-submit{
+border: none;
+border-left: solid 5px #656565;
+border-bottom: solid 12px #656565;
+width: 20%;
+padding: 16px 16px;
+background: #363636;
+color: white;
+text-transform: uppercase;
+font-weight: bold;
+}
+
+.input-group {
+width: 80%;
+margin-left: auto;
+margin-right: auto;
+}
+
+.input-group form {
+width: 100%;
+}
+
+#validation-message {
+    width: 100%;
+    padding: 16px 16px;
+    font-weight: bold;
+    text-align: center;
+}
+
+
+
+
+
+
+.flip {
+    backface-visibility:             hidden;
+        -moz-backface-visibility:    hidden;
+        -ms-backface-visibility:     hidden;
+        -o-backface-visibility:      hidden;
+        -webkit-backface-visibility: hidden;
+    border: 1px solid black;
+    height: 105px;
+    font: normal 14px helvetica, arial, san serif;
+    padding: 10px;
+    position: absolute;
+    transform-origin:             50% 50% 0px;
+        -moz-transform-origin:    50% 50% 0px;
+        -ms-transform-origin:     50% 50% 0px;
+        -o-transform-origin:      50% 50% 0px;
+        -webkit-transform-origin: 50% 50% 0px;
+    transition: all 3s;
+        -moz-transition:    all 3s;
+        -ms-transition:     all 3s;
+        -o-transition:      all 3s;
+        -webkit-transition: all 3s;
+    width: 300px;
+}
+
+#side-1 {
+    transform:             rotateY( 0deg );
+        -moz-transform:    rotateY( 0deg );
+        -ms-transform:     rotateY( 0deg );
+        -o-transform:      rotateY( 0deg );
+        -webkit-transform: rotateY( 0deg );
+}
+
+#side-2 {
+    transform:             rotateY( 180deg );
+        -moz-transform:    rotateY( 180deg );
+        -ms-transform:     rotateY( 180deg );
+        -o-transform:      rotateY( 180deg );
+        -webkit-transform: rotateY( 180deg );
+}
+
+.flip-side-1 {
+    transform:             rotateY( 0deg ) !important;
+        -moz-transform:    rotateY( 0deg ) !important;
+        -ms-transform:     rotateY( 0deg ) !important;
+        -o-transform:      rotateY( 0deg ) !important;
+        -webkit-transform: rotateY( 0deg ) !important;
+}
+
+.flip-side-2 {
+    transform:             rotateY( 180deg ) !important;
+        -moz-transform:    rotateY( 180deg ) !important;
+        -ms-transform:     rotateY( 180deg ) !important;
+        -o-transform:      rotateY( 180deg ) !important;
+        -webkit-transform: rotateY( 180deg ) !important;
+}
+
+
