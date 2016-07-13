@@ -22,11 +22,13 @@
                  [org.clojure/java.jdbc "0.6.2-alpha1"]
                  [postgresql "9.1-901-1.jdbc4"]
                  [cljs-ajax "0.5.8"]
+                 [overtone/at-at "1.2.0"]
 
                  ]
 
   :plugins [[lein-cljsbuild "1.1.3"]
-            [lein-environ "1.0.3"]]
+            [lein-environ "1.0.3"]
+            [lein-auto "0.1.2"]]
 
   :min-lein-version "2.6.1"
 
@@ -50,7 +52,7 @@
               [{:id "app"
                 :source-paths ["src/cljs" "src/cljc"]
 
-                :figwheel true
+                :figwheel {:load-warninged-code true}
                 ;; Alternatively, you can configure a function to run every time figwheel reloads.
                 ;; :figwheel {:on-jsload "nngbc.core/on-figwheel-reload"}
 

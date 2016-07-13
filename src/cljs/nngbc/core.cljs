@@ -1,13 +1,17 @@
 (ns nngbc.core
   (:require
+    [cljs.reader :refer [read-string]]
+    [ajax.core :refer [GET POST]]
     [nngbc.common :as cmn]
     [om.core :as om :include-macros true]
-            [om.dom :as dom :include-macros true]
-            [cljs.spec :as s]
-            [cljs.spec.test :as ts]
-            [cljs.spec.impl.gen :as gen]))
+    [om.dom :as dom :include-macros true]
+    [cljs.spec :as s]
+    [cljs.spec.test :as ts]
+    [cljs.spec.impl.gen :as gen]))
 
 (enable-console-print!)
+
+;Type stuff------------------------------------------------------------------------------------------------------
 
 (defn cursor-gen [val]
       (om/ref-cursor (om/root-cursor (atom val))))
@@ -42,15 +46,21 @@
             (s/gen #{(cursor-gen [val])}))))
 
 #_(s/def ::bonuses-cursor (s/with-gen
-                          (s/and
-                          #(instance? om.core/MapCursor %)
-                          (s/valid? ::cmn/bonus)
-                            )
-                          (fn []
-                              (s/gen #{(map-cursor-gen (atom {}))}))))
+                            (s/and
+                              #(instance? om.core/MapCursor %)
+                              (s/valid? ::cmn/bonus)
+                              )
+                            (fn []
+                                (s/gen #{(map-cursor-gen (atom {}))}))))
 
-(defonce app-state (atom {:text "Hello Chestnut!"
-                          :bonuses []}))
+(s/def ::app-state (s/keys :req [::cmn/bonuses]))
+
+;--------------------------------------------------------------------------------------------------------------
+
+(defonce app-state (atom {:bonuses []}))
+
+(defn error-handler [{:keys [status status-text]}]
+      (.log js/console (str "something bad happened: " status " " status-text)))
 
 (s/fdef header
         :args (s/cat :data map? :owner ::owner))
@@ -60,16 +70,49 @@
         om/IRender
         (render [this]
                 (dom/div #js {:className "search-header"}
-                         (println "data: " (type data))
-                                     (dom/a #js {:className "logo"})))))
+                         (dom/a #js {:className "logo"})))))
+
+(s/fdef sidebar
+        :args (s/cat :data map? :owner ::owner))
+
+(defn sidebar [data owner]
+      (reify
+        om/IRender
+        (render [this]
+                (dom/div #js {:className "simple-sidebar"}
+
+                         (dom/a #js {:href "#" :clasName "sidebar-a"}
+                                (dom/i #js {:className "fa fa-television fa-fw fa-4x"}))
+
+                         (dom/a #js {:href "#bonus-row" :clasName "sidebar-a"}
+                                (dom/i #js {:className "fa fa-gift fa-fw fa-4x"}))))))
+
+(s/fdef root-component
+        :args (s/car :data   :owner ::owner))
+
+(comment
+
+  (gen/generate
+    (s/gen ::cmn/bonuses))
+
+
+
+  )
 
 (defn root-component [app owner]
-  (reify
-    om/IRender
-    (render [_]
-      (dom/div nil
-            (om/build header {})
-               (dom/h1 nil (:text app))))))
+      (reify
+
+        om/IWillMount
+        (will-mount [_]
+                    (GET "/bonuses"
+                         {:handler (fn [resp]
+                                       (om/update! app :bonuses (read-string resp)))}))
+
+        om/IRender
+        (render [_]
+                (dom/div nil
+                         (om/build header {})
+                         (om/build sidebar {})))))
 
 (when
   (js/document.getElementById "app")
@@ -79,9 +122,4 @@
       root-component
       app-state
       {:target (js/document.getElementById "app")})))
-
-#_(om/root
- root-component
- app-state
- {:target (js/document.getElementById "app")})
 

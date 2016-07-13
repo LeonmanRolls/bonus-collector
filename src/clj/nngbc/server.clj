@@ -15,8 +15,14 @@
       [clojure.spec.test :as ts :refer [check]]
       [clojure.spec.gen :as gen]
       [cemerick.url :refer (url url-encode)]
-      [clojure.java.jdbc :as jdbc])
+      [clojure.java.jdbc :as jdbc]
+      [overtone.at-at :as att])
     (:gen-class))
+
+;alter number of html divisions based on env
+
+
+(def my-pool (att/mk-pool))
 
 (def mysql-db
   (or
@@ -66,6 +72,11 @@
 
 (s/def ::gamedatas (s/coll-of ::gamedata))
 
+(s/def ::web-client
+  (s/with-gen
+    #(instance? WebClient %)
+    (fn [] (s/gen #{(new WebClient BrowserVersion/FIREFOX_38)}))))
+
 ;=========================================================================================
 
 (def window-listener
@@ -105,6 +116,18 @@
 (defn window->raw-url [window]
       (.toString (.getBaseURL (.getEnclosedPage window))))
 
+(s/fdef get-html-divisions
+        :args (s/cat :web-client ::web-client :gameskip-url ::gameskip-url)
+        :ret ::html-division-coll)
+
+(defn get-html-divisions [web-client gameskip-url]
+      (into []
+            (->
+              web-client
+              (.getPage gameskip-url)
+              (.getBody)
+              (.getByXPath "//div[@class=\"title box\"]"))))
+
 (s/fdef get-gameskip-bonuses
         :args (s/cat :gameskip-url ::gameskip-url :gameid ::cmn/gameid)
         :ret ::cmn/bonuses)
@@ -112,11 +135,7 @@
 (defn get-gameskip-bonuses [gameskip-url gameid]
       (let [bonuses (atom [])
             web-client (new WebClient BrowserVersion/FIREFOX_38)
-            html-divisions  (->
-                              web-client
-                              (.getPage gameskip-url)
-                              (.getBody)
-                              (.getByXPath "//div[@class=\"title box\"]"))
+            html-divisions  (get-html-divisions web-client gameskip-url)
             _ (doall
                 (map
                   (fn [html-division]
@@ -148,12 +167,12 @@
           (fn [bonus]
               (try
                 (jdbc/insert! mysql-db :bonuses bonus)
-                (catch Exception e
-                  (println "Exception, presumably bonus primary key "))))
+                (catch Exception e (println "insert exception"))))
           bonuses)))
 
 (defn get-all-bonuses []
-      (jdbc/query mysql-db ["SELECT * from bonuses limit 10"]))
+      (into []
+            (jdbc/query mysql-db ["SELECT * from bonuses limit 10"])))
 
 (defroutes routes
 
@@ -165,7 +184,7 @@
            (GET "/bonuses" _
                 {:status 200
                  :headers {"Content-Type" "text/html; charset=utf-8"}
-                 :body (get-all-bonuses)})
+                 :body (str (get-all-bonuses))})
 
            (resources "/"))
 
@@ -177,6 +196,15 @@
 
 (defn -main [& [port]]
       (ts/instrument)
+      (println "main ran")
+      (att/every
+        3600000
+        (fn [_]
+            (insert-bonuses!
+              (get-gameskip-bonuses
+                "https://gameskip.com/farmville-2-links/non-friend-bonus.html"
+                321574327904696))) my-pool)
       (let [port (Integer. (or port (env :port) 10555))]
            (run-jetty http-handler {:port port :join? false})))
+
 
