@@ -21,7 +21,6 @@
 
 ;alter number of html divisions based on env
 
-
 (def my-pool (att/mk-pool))
 
 (def mysql-db
@@ -34,13 +33,26 @@
 
 ;Value gens ==============================================================================
 
-(defn html-division-gen []
-        (->
-          (new WebClient BrowserVersion/FIREFOX_38)
-          (.getPage "http://www.google.com")
-          (.getBody)
-          (.getByXPath "//div[@class=\"ctr-p\"]")
-          first))
+(def html-division
+  (->
+    (new WebClient BrowserVersion/FIREFOX_38)
+    (.getPage "http://www.google.com")
+    (.getBody)
+    (.getByXPath "//div[@class=\"ctr-p\"]")
+    first))
+
+(def bonus-division
+  (->
+    (new WebClient BrowserVersion/FIREFOX_38)
+    (.getPage "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
+    (.getBody)
+    (.getByXPath "//div[@class=\"title box\"]")
+    first))
+
+(comment
+  bonus-division
+  ;possibly try to memoize function to help with timeout
+  )
 
 ;Types ===================================================================================
 
@@ -56,10 +68,20 @@
                         (.getPage web-client "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
                         (last (.getTopLevelWindows web-client)))}))))
 
+(s/def ::bonus-html-division
+  (s/with-gen
+    #(instance? com.gargoylesoftware.htmlunit.html.HtmlDivision %)
+    (fn [] (s/gen #{bonus-division}))))
+
 (s/def ::html-division-coll
   (s/with-gen
     (s/coll-of #(instance? com.gargoylesoftware.htmlunit.html.HtmlDivision %))
-    (fn [] (s/gen #{[(html-division-gen)]}))))
+    (fn [] (s/gen #{[html-division]}))))
+
+(s/def ::bonus-html-division-coll
+  (s/with-gen
+    (s/coll-of #(instance? com.gargoylesoftware.htmlunit.html.HtmlDivision %))
+    (fn [] (s/gen #{[bonus-division]}))))
 
 (s/def ::gamename string?)
 
@@ -117,43 +139,97 @@
       (.toString (.getBaseURL (.getEnclosedPage window))))
 
 (s/fdef get-html-divisions
-        :args (s/cat :web-client ::web-client :gameskip-url ::gameskip-url)
-        :ret ::html-division-coll)
+        :args (s/cat :gameskip-url ::gameskip-url)
+        :ret ::bonus-html-division-coll)
 
-(defn get-html-divisions [web-client gameskip-url]
+(defn get-html-divisions [gameskip-url]
       (into []
             (->
-              web-client
+              (new WebClient BrowserVersion/FIREFOX_38)
               (.getPage gameskip-url)
               (.getBody)
               (.getByXPath "//div[@class=\"title box\"]"))))
+
+(common
+
+
+
+  )
+
+(s/fdef html-divisions->bonuses
+        :args (s/cat :bonus-divisions ::bonus-html-division-coll :gameid ::cmn/gameid)
+        :ret ::cmn/bonuses)
+
+(defn html-divisions->bonuses [bonus-html-divisions gameid]
+      (let [bonuses (atom [])]
+           (doall
+             (map
+               (fn [bonus-html-division]
+                   (let [
+                         page (.click bonus-html-division)
+                         web-client (.getWebClient (.getEnclosingWindow page))
+                         _ (.setTimeout (.getOptions web-client) 0)
+                         ;raw-url (window->raw-url (last (.getTopLevelWindows web-client)))
+                         ;bonus-url (raw-url->bonus-url raw-url)
+                         ;img-div (first (.getByXPath bonus-html-division "./table/tbody/tr/td/div/img"))
+                         ;title (.getAltAttribute img-div)
+                         ; img-url (get (:query (url (.getAttribute img-div "data-original"))) "url")
+                         ]
+
+                        #_(swap! bonuses conj {::cmn/bonus_url_string bonus-url
+                                             ::cmn/title title
+                                             ::cmn/img_url img-url
+                                             ::cmn/timestamp (time-stamp)
+                                             ::cmn/gameid gameid})
+
+                        (do
+
+                          (println "page: " page)
+                          (println "bonus-html-division: " bonus-html-division)
+
+                          (.close (last (.getTopLevelWindows web-client)))
+
+                          bonus-html-division
+
+                          )
+
+                        ))
+               bonus-html-divisions))
+
+           ))
 
 (s/fdef get-gameskip-bonuses
         :args (s/cat :gameskip-url ::gameskip-url :gameid ::cmn/gameid)
         :ret ::cmn/bonuses)
 
 (defn get-gameskip-bonuses [gameskip-url gameid]
-      (let [bonuses (atom [])
-            web-client (new WebClient BrowserVersion/FIREFOX_38)
-            html-divisions  (get-html-divisions web-client gameskip-url)
-            _ (doall
-                (map
-                  (fn [html-division]
-                      (let [_ (.click html-division)
-                            raw-url (window->raw-url (last (.getTopLevelWindows web-client)))
-                            bonus-url (raw-url->bonus-url raw-url)
-                            img-div (first (.getByXPath html-division "./table/tbody/tr/td/div/img"))
-                            title (.getAltAttribute img-div)
-                            img-url (get (:query (url (.getAttribute img-div "data-original"))) "url")]
+      (let [html-divisions  (get-html-divisions gameskip-url)
+            bonuses (html-divisions->bonuses html-divisions gameid)]
+           bonuses))
 
-                           (swap! bonuses conj {::cmn/bonus_url_string bonus-url
-                                                ::cmn/title title
-                                                ::cmn/img_url img-url
-                                                ::cmn/timestamp (time-stamp)
-                                                ::cmn/gameid gameid})
-                           (.close (last (.getTopLevelWindows web-client)))))
-                  (take 2 html-divisions)))]
-           @bonuses))
+(comment
+
+  (get-gameskip-bonuses
+    (gen/generate (s/gen ::gameskip-url))
+    (gen/generate (s/gen ::cmn/gameid)))
+
+  (def html-divisions (get-html-divisions
+                        (gen/generate (s/gen ::gameskip-url))))
+
+  (def page (.click (first html-divisions)))
+
+  (def web-client (.getWebClient (.getEnclosingWindow page)))
+
+  (count (.getTopLevelWindows web-client))
+
+  web-client
+
+  (html-divisions->bonuses
+    (get-html-divisions
+      (gen/generate (s/gen ::gameskip-url)))
+    (gen/generate (s/gen ::cmn/gameid)))
+
+  )
 
 (defn get-all-gamedata []
       (jdbc/query mysql-db ["SELECT * from games"]))
@@ -202,9 +278,10 @@
         (fn [_]
             (insert-bonuses!
               (get-gameskip-bonuses
-                "https://gameskip.com/farmville-2-links/non-friend-bonus.html"
+                "http://google.com"
                 321574327904696))) my-pool)
       (let [port (Integer. (or port (env :port) 10555))]
            (run-jetty http-handler {:port port :join? false})))
 
+(ts/instrument)
 

@@ -88,14 +88,12 @@
                                 (dom/i #js {:className "fa fa-gift fa-fw fa-4x"}))))))
 
 (s/fdef root-component
-        :args (s/car :data   :owner ::owner))
+        :args (s/cat :data ::app-state :owner ::owner))
 
 (comment
 
   (gen/generate
     (s/gen ::cmn/bonuses))
-
-
 
   )
 
