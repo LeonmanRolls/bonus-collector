@@ -142,25 +142,27 @@
         :args (s/cat :gameskip-url ::gameskip-url)
         :ret ::bonus-html-division-coll)
 
+;Set webclient options here instead
 (defn get-html-divisions [gameskip-url]
-      (into []
-            (->
-              (new WebClient BrowserVersion/FIREFOX_38)
-              (.getPage gameskip-url)
-              (.getBody)
-              (.getByXPath "//div[@class=\"title box\"]"))))
-
-(common
-
-
-
-  )
+      (->
+        (let [web-client (new WebClient BrowserVersion/CHROME)]
+             (.setTimeout (.getOptions web-client) 0)
+             (.setMaxInMemory (.getOptions web-client) 4096000)
+             web-client)
+        (.getPage gameskip-url)
+        (.getBody)
+        (.getByXPath "//div[@class=\"title box\"]")))
 
 (s/fdef html-divisions->bonuses
         :args (s/cat :bonus-divisions ::bonus-html-division-coll :gameid ::cmn/gameid)
         :ret ::cmn/bonuses)
 
 (defn html-divisions->bonuses [bonus-html-divisions gameid]
+      (println "***Top level windows first: " (.getTopLevelWindows
+                                                (.getWebClient
+                                                  (.getEnclosingWindow
+                                                    (.click
+                                                      (first bonus-html-divisions))))))
       (let [bonuses (atom [])]
            (doall
              (map
@@ -168,34 +170,43 @@
                    (let [
                          page (.click bonus-html-division)
                          web-client (.getWebClient (.getEnclosingWindow page))
-                         _ (.setTimeout (.getOptions web-client) 0)
+                         ;windows (.getTopLevelWindows web-client)
                          ;raw-url (window->raw-url (last (.getTopLevelWindows web-client)))
                          ;bonus-url (raw-url->bonus-url raw-url)
                          ;img-div (first (.getByXPath bonus-html-division "./table/tbody/tr/td/div/img"))
                          ;title (.getAltAttribute img-div)
-                         ; img-url (get (:query (url (.getAttribute img-div "data-original"))) "url")
+                         ;img-url (get (:query (url (.getAttribute img-div "data-original"))) "url")
                          ]
 
+                        (println "***Top level windows: " (.getTopLevelWindows web-client))
+
                         #_(swap! bonuses conj {::cmn/bonus_url_string bonus-url
-                                             ::cmn/title title
-                                             ::cmn/img_url img-url
-                                             ::cmn/timestamp (time-stamp)
-                                             ::cmn/gameid gameid})
+                                               ::cmn/title title
+                                               ::cmn/img_url img-url
+                                               ::cmn/timestamp (time-stamp)
+                                               ::cmn/gameid gameid})
 
-                        (do
+                        #_(do
+                            (.setCurrentWindow web-client (first (.getTopLevelWindows web-client)))
+                            (println "***page: " page)
+                            (println "***html-division: " bonus-html-division)
+                            (println "***Top level windows: " (.getTopLevelWindows web-client))
+                            (Thread/sleep 4000)
+                            #_(.close (last (.getTopLevelWindows web-client)))
 
-                          (println "page: " page)
-                          (println "bonus-html-division: " bonus-html-division)
+                            #_(println "***bonus-html-division: " bonus-html-division)
+                            #_(println "***max in memory: " (.getMaxInMemory (.getOptions web-client)))
+                            #_(println "***history size limit: " (.getHistorySizeLimit (.getOptions web-client)))
+                            #_(println "top level windows: " (.getTopLevelWindows web-client))
 
-                          (.close (last (.getTopLevelWindows web-client)))
+                            #_(try
+                                (.close (last (.getTopLevelWindows web-client)))
+                                (catch Exception e (println "close exception")))
 
-                          bonus-html-division
-
-                          )
+                            )
 
                         ))
                bonus-html-divisions))
-
            ))
 
 (s/fdef get-gameskip-bonuses
@@ -207,6 +218,12 @@
             bonuses (html-divisions->bonuses html-divisions gameid)]
            bonuses))
 
+(s/fdef get-latest-gameskip-bonus
+        :args :gameskip-url ::gameskip-url)
+
+(defn get-latest-gamekskip-bonus [gameskip-url]
+      (.click (first (get-html-divisions gameskip-url))))
+
 (comment
 
   (get-gameskip-bonuses
@@ -216,18 +233,100 @@
   (def html-divisions (get-html-divisions
                         (gen/generate (s/gen ::gameskip-url))))
 
-  (def page (.click (first html-divisions)))
+  (type html-divisions)
+
+  (def page (.click (nth html-divisions 2)))
 
   (def web-client (.getWebClient (.getEnclosingWindow page)))
 
-  (count (.getTopLevelWindows web-client))
+  (.getTopLevelWindows web-client)
 
-  web-client
+  (amap html-divisions idx ret
+        (let [page (.click (nth html-divisions idx))
+              web-client (.getWebClient (.getEnclosingWindow page))]
+             (println "***Top level windows: " (.getTopLevelWindows web-client))))
+
+  (type html-divisions)
+
+  (map
+    (fn [bonus-html-division]
+        (let [page (.click bonus-html-division)
+              web-client (.getWebClient (.getEnclosingWindow page))]
+             (println "***Top level windows: " (.getTopLevelWindows web-client))))
+    html-divisions)
+
+  (doseq [n (range 60)]
+         (let [html-divisions (get-html-divisions
+                                (gen/generate (s/gen ::gameskip-url)))
+               page (.click (nth html-divisions n))]
+              (println "page: " page)))
+
+  (let [html-divisions (get-html-divisions (gen/generate (s/gen ::gameskip-url)))
+        page (.click (first html-divisions))]
+       page)
+
+
+
+
+  (def windows (.getTopLevelWindows web-client))
+
+  (.setCurrentWindow web-client (first (.getTopLevelWindows web-client)))
+
+  (.getCurrentWindow web-client)
+
+  (.close (last (.getTopLevelWindows web-client)))
+
+  (.getTopLevelWindows web-client)
+
+  (dorun
+    (map
+      (fn [bonus-html-division]
+          (do
+            "hi hi"
+            (.close (.getCurrentWindow (.getWebClient (.getEnclosingWindow (.click bonus-html-division)))))))
+      html-divisions))
+
+  (def web-client (.getWebClient (.getEnclosingWindow page)))
+
+  (.close (.getCurrentWindow web-client))
 
   (html-divisions->bonuses
     (get-html-divisions
       (gen/generate (s/gen ::gameskip-url)))
     (gen/generate (s/gen ::cmn/gameid)))
+
+  (defn doseq-interval
+        [f coll interval]
+        (doseq [x coll]
+               (f x)
+               (Thread/sleep interval)))
+
+  (def html-divisions (get-html-divisions
+                        (gen/generate (s/gen ::gameskip-url))))
+
+  (dorun
+    (map
+      (fn [bonus-html-division]
+          (let [page (.click bonus-html-division)
+                web-client (.getWebClient (.getEnclosingWindow page))]
+               (do
+                 (println "***page: " page)
+                 (println "***bonus-html-division: " bonus-html-division)
+                 (.close (.getCurrentWindow web-client))
+                 )))
+      html-divisions))
+
+  (doseq-interval
+    (fn [bonus-html-division]
+        (let [page (.click bonus-html-division)
+              web-client (.getWebClient (.getEnclosingWindow page))]
+             (.close (last (.getTopLevelWindows web-client)))
+             #_(do
+                 (println "***page: " page)
+                 (println "***bonus-html-division: " bonus-html-division)
+                 (.close (.getCurrentWindow web-client)))))
+    html-divisions
+    60000)
 
   )
 
@@ -261,8 +360,7 @@
                 {:status 200
                  :headers {"Content-Type" "text/html; charset=utf-8"}
                  :body (str (get-all-bonuses))})
-
-           (resources "/"))
+(resources "/"))
 
 (def http-handler
   (-> routes
