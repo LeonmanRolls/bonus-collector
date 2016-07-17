@@ -57,7 +57,7 @@
 
 ;--------------------------------------------------------------------------------------------------------------
 
-(defonce app-state (atom {:bonuses []}))
+(defonce app-state (atom {::cmn/bonuses []}))
 
 (defn error-handler [{:keys [status status-text]}]
       (.log js/console (str "something bad happened: " status " " status-text)))
@@ -89,13 +89,6 @@
 
 (s/fdef root-component
         :args (s/cat :data ::app-state :owner ::owner))
-
-(comment
-
-  (gen/generate
-    (s/gen ::cmn/bonuses))
-
-  )
 
 (defn root-component [app owner]
       (reify

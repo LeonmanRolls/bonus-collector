@@ -49,11 +49,6 @@
     (.getByXPath "//div[@class=\"title box\"]")
     first))
 
-(comment
-  bonus-division
-  ;possibly try to memoize function to help with timeout
-  )
-
 ;Types ===================================================================================
 
 (s/def ::raw_url_string
@@ -180,22 +175,6 @@
             ::cmn/timestamp (time-stamp)
             ::cmn/gameid gameid}))
 
-(comment
-
-  (def abonus (get-latest-gameskip-bonus
-                (gen/generate (s/gen ::gameskip-url))
-                (gen/generate (s/gen ::cmn/gameid))))
-
-  (insert-bonus! abonus)
-
-  (def gamedata (get-all-gamedata))
-
-  (type (long (:gameid (first gamedata))))
-
-  (harvest-bonuses)
-
-  )
-
 (defn harvest-bonuses []
       (dorun
         (map
@@ -243,13 +222,7 @@
 
 (defn -main [& [port]]
       (ts/instrument)
-      #_(att/every
-        3600000
-        (fn [_]
-            (insert-bonuses!
-              (get-gameskip-bonuses
-                "http://google.com"
-                321574327904696))) my-pool)
+      (att/every 360000 (fn [_] (harvest-bonuses)) my-pool)
       (let [port (Integer. (or port (env :port) 10555))]
            (run-jetty http-handler {:port port :join? false})))
 

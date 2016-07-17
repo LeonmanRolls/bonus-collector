@@ -34,6 +34,7 @@
 
 (s/def ::bonus (s/keys :req [::bonus_url_string ::title ::img_url ::timestamp ::gameid]))
 
-(s/def ::bonuses (s/coll-of ::bonus))
-
+(s/def ::bonuses (s/or
+                   :actual-data (s/coll-of ::bonus)
+                   :empty-init vector?))
 
