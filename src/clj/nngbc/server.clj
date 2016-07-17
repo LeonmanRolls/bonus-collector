@@ -209,124 +209,27 @@
                bonus-html-divisions))
            ))
 
-(s/fdef get-gameskip-bonuses
-        :args (s/cat :gameskip-url ::gameskip-url :gameid ::cmn/gameid)
-        :ret ::cmn/bonuses)
-
-(defn get-gameskip-bonuses [gameskip-url gameid]
-      (let [html-divisions  (get-html-divisions gameskip-url)
-            bonuses (html-divisions->bonuses html-divisions gameid)]
-           bonuses))
-
 (s/fdef get-latest-gameskip-bonus
-        :args :gameskip-url ::gameskip-url)
+        :args (s/cat :gameskip-url ::gameskip-url)
+        :ret string?)
 
 (defn get-latest-gamekskip-bonus [gameskip-url]
-      (.click (first (get-html-divisions gameskip-url))))
+      (->
+        gamekskip-url
+        get-html-divisions
+        first
+        (.click)
+        (.getBaseURL)
+        (.toString)
+        raw-url->bonus-url))
+
 
 (comment
+  ;Decide return type
 
-  (get-gameskip-bonuses
-    (gen/generate (s/gen ::gameskip-url))
-    (gen/generate (s/gen ::cmn/gameid)))
+  (def page (.click (first (get-html-divisions (gen/generate (s/gen ::gameskip-url))))))
 
-  (def html-divisions (get-html-divisions
-                        (gen/generate (s/gen ::gameskip-url))))
-
-  (type html-divisions)
-
-  (def page (.click (nth html-divisions 2)))
-
-  (def web-client (.getWebClient (.getEnclosingWindow page)))
-
-  (.getTopLevelWindows web-client)
-
-  (amap html-divisions idx ret
-        (let [page (.click (nth html-divisions idx))
-              web-client (.getWebClient (.getEnclosingWindow page))]
-             (println "***Top level windows: " (.getTopLevelWindows web-client))))
-
-  (type html-divisions)
-
-  (map
-    (fn [bonus-html-division]
-        (let [page (.click bonus-html-division)
-              web-client (.getWebClient (.getEnclosingWindow page))]
-             (println "***Top level windows: " (.getTopLevelWindows web-client))))
-    html-divisions)
-
-  (doseq [n (range 60)]
-         (let [html-divisions (get-html-divisions
-                                (gen/generate (s/gen ::gameskip-url)))
-               page (.click (nth html-divisions n))]
-              (println "page: " page)))
-
-  (let [html-divisions (get-html-divisions (gen/generate (s/gen ::gameskip-url)))
-        page (.click (first html-divisions))]
-       page)
-
-
-
-
-  (def windows (.getTopLevelWindows web-client))
-
-  (.setCurrentWindow web-client (first (.getTopLevelWindows web-client)))
-
-  (.getCurrentWindow web-client)
-
-  (.close (last (.getTopLevelWindows web-client)))
-
-  (.getTopLevelWindows web-client)
-
-  (dorun
-    (map
-      (fn [bonus-html-division]
-          (do
-            "hi hi"
-            (.close (.getCurrentWindow (.getWebClient (.getEnclosingWindow (.click bonus-html-division)))))))
-      html-divisions))
-
-  (def web-client (.getWebClient (.getEnclosingWindow page)))
-
-  (.close (.getCurrentWindow web-client))
-
-  (html-divisions->bonuses
-    (get-html-divisions
-      (gen/generate (s/gen ::gameskip-url)))
-    (gen/generate (s/gen ::cmn/gameid)))
-
-  (defn doseq-interval
-        [f coll interval]
-        (doseq [x coll]
-               (f x)
-               (Thread/sleep interval)))
-
-  (def html-divisions (get-html-divisions
-                        (gen/generate (s/gen ::gameskip-url))))
-
-  (dorun
-    (map
-      (fn [bonus-html-division]
-          (let [page (.click bonus-html-division)
-                web-client (.getWebClient (.getEnclosingWindow page))]
-               (do
-                 (println "***page: " page)
-                 (println "***bonus-html-division: " bonus-html-division)
-                 (.close (.getCurrentWindow web-client))
-                 )))
-      html-divisions))
-
-  (doseq-interval
-    (fn [bonus-html-division]
-        (let [page (.click bonus-html-division)
-              web-client (.getWebClient (.getEnclosingWindow page))]
-             (.close (last (.getTopLevelWindows web-client)))
-             #_(do
-                 (println "***page: " page)
-                 (println "***bonus-html-division: " bonus-html-division)
-                 (.close (.getCurrentWindow web-client)))))
-    html-divisions
-    60000)
+  (raw-url->bonus-url (.toString (.getBaseURL page)))
 
   )
 
@@ -370,8 +273,7 @@
 
 (defn -main [& [port]]
       (ts/instrument)
-      (println "main ran")
-      (att/every
+      #_(att/every
         3600000
         (fn [_]
             (insert-bonuses!
@@ -381,5 +283,4 @@
       (let [port (Integer. (or port (env :port) 10555))]
            (run-jetty http-handler {:port port :join? false})))
 
-(ts/instrument)
 
