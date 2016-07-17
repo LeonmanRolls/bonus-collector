@@ -209,44 +209,56 @@
                bonus-html-divisions))
            ))
 
+(s/fdef bonus-img-handler
+        :args (s/cat :img-url ::cmn/img_url)
+        :ret ::cmn/img_url)
+
+(defn bonus-img-handler [img-url]
+      (if
+        (.contains "manual" img-url)
+        "http://static1.squarespace.com/static/52b5dd41e4b0edd5cee29a6c/t/52b9fd52e4b0d9c93d4ecdeb/1387920722995/domo3+50x50.png"
+        img-url))
+
 (s/fdef get-latest-gameskip-bonus
-        :args (s/cat :gameskip-url ::gameskip-url)
-        :ret string?)
+        :args (s/cat :gameskip-url ::gameskip-url :game-id ::cmn/gameid)
+        :ret ::cmn/bonus)
 
-(defn get-latest-gamekskip-bonus [gameskip-url]
-      (->
-        gamekskip-url
-        get-html-divisions
-        first
-        (.click)
-        (.getBaseURL)
-        (.toString)
-        raw-url->bonus-url))
+(defn get-latest-gameskip-bonus [gameskip-url gameid]
+      (let [bonus-html-division (first (get-html-divisions gameskip-url))
+            page (.click bonus-html-division)
+            bonus-url (raw-url->bonus-url (.toString (-> page (.getBaseURL))))
+            img-div (first (.getByXPath bonus-html-division "./table/tbody/tr/td/div/img"))
+            title (.getAltAttribute img-div)
+            img-url (bonus-img-handler (get (:query (url (.getAttribute img-div "data-original"))) "url"))]
 
+           {::cmn/bonus_url_string bonus-url
+            ::cmn/title title
+            ::cmn/img_url img-url
+            ::cmn/tiemstamp (time-stamp)
+            ::cmn/gameid gameid}))
 
 (comment
-  ;Decide return type
 
-  (def page (.click (first (get-html-divisions (gen/generate (s/gen ::gameskip-url))))))
-
-  (raw-url->bonus-url (.toString (.getBaseURL page)))
+  (get-latest-gameskip-bonus
+    (gen/generate (s/gen ::gameskip-url))
+    (gen/generate (s/gen ::cmn/gameid)))
 
   )
+
+(defn harvest-bonus []
+
+      )
 
 (defn get-all-gamedata []
       (jdbc/query mysql-db ["SELECT * from games"]))
 
-(s/fdef insert-bonuses!
-        :args (s/cat :bonuses ::cmn/bonuses))
+(s/fdef insert-bonus!
+        :args (s/cat :bonuses ::bonus))
 
-(defn insert-bonuses! [bonuses]
-      (doall
-        (map
-          (fn [bonus]
-              (try
-                (jdbc/insert! mysql-db :bonuses bonus)
-                (catch Exception e (println "insert exception"))))
-          bonuses)))
+(defn insert-bonus! [bonus]
+      (try
+        (jdbc/insert! mysql-db :bonuses bonus)
+        (catch Exception e (println "insert exception"))))
 
 (defn get-all-bonuses []
       (into []
