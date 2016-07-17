@@ -1,3 +1,7 @@
+a{
+    color: white;
+}
+
 .search-header {
     float: left;
     width: 100%;
@@ -20,6 +24,7 @@ float: left;
 }
 
 .simple-sidebar {
+    text-align: center;
     list-style-type: none;
     position: fixed;
     left: 0;

@@ -82,10 +82,10 @@
                 (dom/div #js {:className "simple-sidebar"}
 
                          (dom/a #js {:href "#" :clasName "sidebar-a"}
-                                (dom/i #js {:className "fa fa-television fa-fw fa-4x"}))
+                                (dom/i #js {:className "fa fa-television fa-3x"}))
 
                          (dom/a #js {:href "#bonus-row" :clasName "sidebar-a"}
-                                (dom/i #js {:className "fa fa-gift fa-fw fa-4x"}))))))
+                                (dom/i #js {:className "fa fa-gift fa-3x"}))))))
 
 (s/fdef root-component
         :args (s/cat :data ::app-state :owner ::owner))
@@ -113,4 +113,5 @@
       root-component
       app-state
       {:target (js/document.getElementById "app")})))
+
 
