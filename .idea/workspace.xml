@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a9a9df8-0b89-4642-a57c-4506454c9c92" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/clj/nngbc/server.clj" afterPath="$PROJECT_DIR$/src/clj/nngbc/server.clj" />
     </list>
     <ignored path="nngbc.iws" />
@@ -59,8 +58,8 @@
           <file leaf-file-name="server.clj" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/clj/nngbc/server.clj">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="525">
-                  <caret line="244" column="39" selection-start-line="242" selection-start-column="2" selection-end-line="244" selection-end-column="40" />
+                <state relative-caret-position="225">
+                  <caret line="194" column="15" selection-start-line="194" selection-start-column="0" selection-end-line="194" selection-end-column="19" />
                   <folding />
                 </state>
               </provider>
@@ -84,7 +83,7 @@
             <entry file="file://$PROJECT_DIR$/src/clj/nngbc/server.clj">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="195">
-                  <caret line="66" column="13" selection-start-line="242" selection-start-column="2" selection-end-line="244" selection-end-column="40" />
+                  <caret line="66" column="13" selection-start-line="194" selection-start-column="0" selection-end-line="194" selection-end-column="19" />
                   <folding />
                 </state>
               </provider>
@@ -627,8 +626,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/clj/nngbc/server.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="244" column="39" selection-start-line="242" selection-start-column="2" selection-end-line="244" selection-end-column="40" />
+        <state relative-caret-position="225">
+          <caret line="194" column="15" selection-start-line="194" selection-start-column="0" selection-end-line="194" selection-end-column="19" />
           <folding />
         </state>
       </provider>
