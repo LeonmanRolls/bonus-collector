@@ -1,6 +1,7 @@
 (ns nngbc.server
     (:import (com.gargoylesoftware.htmlunit WebClient BrowserVersion WebWindowListener))
     (:require
+      [clojure.java.io :as jio]
       [nngbc.common :as cmn]
       [clojure.java.io :as io]
       [compojure.core :refer [ANY GET PUT POST DELETE defroutes]]
@@ -33,9 +34,15 @@
 
 ;Value gens ==============================================================================
 
+(defn web-client-gen []
+  (let [web-client (new WebClient BrowserVersion/CHROME)]
+                   (.setTimeout (.getOptions web-client) 0)
+                   (.setMaxInMemory (.getOptions web-client) 4096000)
+                   web-client))
+
 (def html-division
   (->
-    (new WebClient BrowserVersion/FIREFOX_38)
+    (web-client-gen)
     (.getPage "http://www.google.com")
     (.getBody)
     (.getByXPath "//div[@class=\"ctr-p\"]")
@@ -43,7 +50,7 @@
 
 (def bonus-division
   (->
-    (new WebClient BrowserVersion/FIREFOX_38)
+    (web-client-gen)
     (.getPage "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
     (.getBody)
     (.getByXPath "//div[@class=\"title box\"]")
@@ -59,7 +66,7 @@
 (s/def ::window
   (s/with-gen
     #(instance? com.gargoylesoftware.htmlunit.TopLevelWindow %)
-    (fn [](s/gen #{(let [web-client (new WebClient)]
+    (fn [](s/gen #{(let [web-client (web-client-gen)]
                         (.getPage web-client "https://gameskip.com/farmville-2-links/non-friend-bonus.html")
                         (last (.getTopLevelWindows web-client)))}))))
 
@@ -195,7 +202,7 @@
 
 (defn get-all-bonuses []
       (into []
-            (jdbc/query mysql-db ["SELECT * from bonuses limit 10"])))
+            (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50 "])))
 
 (defn harvest-bonuses []
       (dorun
@@ -226,7 +233,7 @@
 
 (defn -main [& [port]]
       (ts/instrument)
-      (att/every 360000 (fn [_] (harvest-bonuses)) my-pool)
+      (att/every 60000 (fn [_] (harvest-bonuses)) my-pool)
       (let [port (Integer. (or port (env :port) 10555))]
            (run-jetty http-handler {:port port :join? false})))
 

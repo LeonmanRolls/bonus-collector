@@ -34,7 +34,9 @@
        :cljs number?)
     (fn [] (s/gen #{321574327904696}))))
 
-(s/def ::bonus (s/nilable (s/keys :req-un [::bonus_url_string ::title ::img_url ::timestamp ::gameid])))
+(s/def ::bonus (s/or :full-bonus-q (s/keys :req [::bonus_url_string ::title ::img_url ::timestamp ::gameid])
+                     :full-bonus-unq (s/keys :req-un [::bonus_url_string ::title ::img_url ::timestamp ::gameid])
+                     :nil nil?))
 
 (s/def ::bonuses (s/or
                    :actual-data (s/coll-of ::bonus)

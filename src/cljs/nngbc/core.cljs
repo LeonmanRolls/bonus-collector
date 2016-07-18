@@ -95,7 +95,6 @@
         om/IRender
         (render [_]
                 (dom/div #js {:className "col-md-2 col-sm-3 col-xs-6 bonus"}
-                        (println "bonus url string: " bonus_url_string)
                          (dom/a #js {:href bonus_url_string :className "song" :target "_blank"}
                                 (dom/figure nil
                                               (dom/img #js {:src img_url :id bonus_string_url

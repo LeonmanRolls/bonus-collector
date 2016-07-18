@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a9a9df8-0b89-4642-a57c-4506454c9c92" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/public/index.html" afterPath="$PROJECT_DIR$/resources/public/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/clj/nngbc/server.clj" afterPath="$PROJECT_DIR$/src/clj/nngbc/server.clj" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cljc/nngbc/common.cljc" afterPath="$PROJECT_DIR$/src/cljc/nngbc/common.cljc" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cljs/nngbc/core.cljs" afterPath="$PROJECT_DIR$/src/cljs/nngbc/core.cljs" />
     </list>
@@ -37,11 +38,11 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="core.cljs" pinned="false" current-in-tab="true">
+          <file leaf-file-name="core.cljs" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/src/cljs/nngbc/core.cljs">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="585">
-                  <caret line="100" column="31" selection-start-line="100" selection-start-column="31" selection-end-line="100" selection-end-column="31" />
+                <state relative-caret-position="525">
+                  <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -60,18 +61,18 @@
           <file leaf-file-name="style.css" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/resources/public/css/style.css">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="495">
-                  <caret line="33" column="6" selection-start-line="33" selection-start-column="6" selection-end-line="33" selection-end-column="6" />
+                <state relative-caret-position="210">
+                  <caret line="14" column="9" selection-start-line="14" selection-start-column="9" selection-end-line="14" selection-end-column="9" />
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="server.clj" pinned="false" current-in-tab="false">
+          <file leaf-file-name="server.clj" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/clj/nngbc/server.clj">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="225">
-                  <caret line="170" column="0" selection-start-line="170" selection-start-column="0" selection-end-line="170" selection-end-column="0" />
+                <state relative-caret-position="615">
+                  <caret line="181" column="0" selection-start-line="181" selection-start-column="0" selection-end-line="181" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -94,8 +95,8 @@
           <file leaf-file-name="server.clj" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/src/clj/nngbc/server.clj">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="390">
-                  <caret line="175" column="8" selection-start-line="175" selection-start-column="8" selection-end-line="175" selection-end-column="8" />
+                <state relative-caret-position="465">
+                  <caret line="210" column="31" selection-start-line="210" selection-start-column="31" selection-end-line="210" selection-end-column="31" />
                   <folding />
                 </state>
               </provider>
@@ -104,8 +105,8 @@
           <file leaf-file-name="common.cljc" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/cljc/nngbc/common.cljc">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="225">
-                  <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+                <state relative-caret-position="600">
+                  <caret line="40" column="1" selection-start-line="40" selection-start-column="1" selection-end-line="40" selection-end-column="1" />
                   <folding />
                 </state>
               </provider>
@@ -122,11 +123,11 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/project.clj" />
-        <option value="$PROJECT_DIR$/resources/public/css/style.css" />
-        <option value="$PROJECT_DIR$/src/clj/nngbc/server.clj" />
         <option value="$PROJECT_DIR$/resources/public/index.html" />
-        <option value="$PROJECT_DIR$/src/cljc/nngbc/common.cljc" />
+        <option value="$PROJECT_DIR$/resources/public/css/style.css" />
         <option value="$PROJECT_DIR$/src/cljs/nngbc/core.cljs" />
+        <option value="$PROJECT_DIR$/src/cljc/nngbc/common.cljc" />
+        <option value="$PROJECT_DIR$/src/clj/nngbc/server.clj" />
       </list>
     </option>
   </component>
@@ -607,18 +608,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/public/css/style.css">
+    <entry file="file://$PROJECT_DIR$/src/cljs/nngbc/core.cljs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="495">
-          <caret line="33" column="6" selection-start-line="33" selection-start-column="6" selection-end-line="33" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/clj/nngbc/server.clj">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="170" column="0" selection-start-line="170" selection-start-column="0" selection-end-line="170" selection-end-column="0" />
+        <state relative-caret-position="1080">
+          <caret line="72" column="0" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -631,18 +624,26 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cljc/nngbc/common.cljc">
+    <entry file="file://$PROJECT_DIR$/resources/public/css/style.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+        <state relative-caret-position="210">
+          <caret line="14" column="9" selection-start-line="14" selection-start-column="9" selection-end-line="14" selection-end-column="9" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cljs/nngbc/core.cljs">
+    <entry file="file://$PROJECT_DIR$/src/clj/nngbc/server.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="585">
-          <caret line="100" column="31" selection-start-line="100" selection-start-column="31" selection-end-line="100" selection-end-column="31" />
+        <state relative-caret-position="465">
+          <caret line="210" column="31" selection-start-line="210" selection-start-column="31" selection-end-line="210" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cljc/nngbc/common.cljc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="600">
+          <caret line="40" column="1" selection-start-line="40" selection-start-column="1" selection-end-line="40" selection-end-column="1" />
           <folding />
         </state>
       </provider>
