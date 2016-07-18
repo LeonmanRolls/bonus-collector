@@ -2,6 +2,11 @@ a{
     color: white;
 }
 
+.bonus-container{
+    margin-left: 70px;
+    margin-top: 70px;
+}
+
 .search-header {
     float: left;
     width: 100%;

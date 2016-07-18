@@ -9,7 +9,9 @@
 
 (s/def ::bonus_url_string
   (s/with-gen
-    #(not (nil? (:query (url %))))
+    (s/and
+      #(not (nil? (:query (url %))))
+      string?)
     (fn [] (s/gen #{"https://apps.facebook.com/farmville-two/viral.php?viralId=be012f04287d1360de69368f70369268_33671037398"}))))
 
 (s/def ::title string?)
@@ -32,7 +34,7 @@
        :cljs number?)
     (fn [] (s/gen #{321574327904696}))))
 
-(s/def ::bonus (s/keys :req [::bonus_url_string ::title ::img_url ::timestamp ::gameid]))
+(s/def ::bonus (s/nilable (s/keys :req-un [::bonus_url_string ::title ::img_url ::timestamp ::gameid])))
 
 (s/def ::bonuses (s/or
                    :actual-data (s/coll-of ::bonus)

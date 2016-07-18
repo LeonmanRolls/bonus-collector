@@ -81,16 +81,34 @@
         (render [this]
                 (dom/div #js {:className "simple-sidebar"}
 
-                         (dom/a #js {:href "#" :clasName "sidebar-a"}
+                         (dom/a #js {:href "#" :className "sidebar-a"}
                                 (dom/i #js {:className "fa fa-television fa-3x"}))
 
-                         (dom/a #js {:href "#bonus-row" :clasName "sidebar-a"}
+                         (dom/a #js {:href "#bonus-row" :className "sidebar-a"}
                                 (dom/i #js {:className "fa fa-gift fa-3x"}))))))
+
+(s/fdef bonus-partial
+        :args (s/cat :data ::cmn/bonus :owner ::owner))
+
+(defn bonus-partial [{:keys [title bonus_url_string img_url timestamp gameid] :as data} owner]
+      (reify
+        om/IRender
+        (render [_]
+                (dom/div #js {:className "col-md-2 col-sm-3 col-xs-6 bonus"}
+                        (println "bonus url string: " bonus_url_string)
+                         (dom/a #js {:href bonus_url_string :className "song" :target "_blank"}
+                                (dom/figure nil
+                                              (dom/img #js {:src img_url :id bonus_string_url
+                                                            :className "bonus-img"}))
+                                (dom/div #js {:href "#" :className "song-title"} title)
+                                #_(dom/div #js {:href "#" :className "song-title"}
+                                           "Clicks: " clicks))))))
+
 
 (s/fdef root-component
         :args (s/cat :data ::app-state :owner ::owner))
 
-(defn root-component [app owner]
+(defn root-component [{:keys [bonuses] :as app} owner]
       (reify
 
         om/IWillMount
@@ -102,9 +120,14 @@
         om/IRender
         (render [_]
                 (dom/div nil
-                         (println (:bonuses app))
                          (om/build header {})
-                         (om/build sidebar {})))))
+                         (om/build sidebar {})
+                         (apply
+                           dom/div
+                           #js {:className "bonus-container"}
+                           (om/build-all bonus-partial bonuses {:key :bonus_url_string}))
+                         #_(om/bulid-all bonus-partial bonuses)
+                         ))))
 
 (when
   (js/document.getElementById "app")
@@ -117,6 +140,9 @@
 
 (comment
 
-
+  (GET "/bonuses"
+       {:handler (fn [resp]
+                     (println resp))})
 
   )
+
