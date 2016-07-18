@@ -85,21 +85,10 @@
     (s/coll-of #(instance? com.gargoylesoftware.htmlunit.html.HtmlDivision %))
     (fn [] (s/gen #{[bonus-division]}))))
 
-(s/def ::gamename string?)
-
-(s/def ::gameskip-url
-  (s/with-gen
-    #(not (nil? (re-find #"gameskip.com" %)))
-    (fn [] (s/gen #{"https://gameskip.com/farmville-2-links/non-friend-bonus.html"}))))
-
-(s/def ::gamedata (s/keys :req-un [::gamename ::cmn/gameid ::gameskip-url]))
-
-(s/def ::gamedatas (s/coll-of ::gamedata))
-
 (s/def ::web-client
   (s/with-gen
     #(instance? WebClient %)
-    (fn [] (s/gen #{(new WebClient BrowserVersion/FIREFOX_38)}))))
+    (fn [] (s/gen #{(new WebClient)}))))
 
 ;=========================================================================================
 
@@ -141,7 +130,7 @@
       (.toString (.getBaseURL (.getEnclosedPage window))))
 
 (s/fdef get-html-divisions
-        :args (s/cat :gameskip-url ::gameskip-url)
+        :args (s/cat :gameskip-url ::cmn/gameskip-url)
         :ret ::bonus-html-division-coll)
 
 (defn get-html-divisions [gameskip-url]
@@ -166,7 +155,7 @@
         img-url))
 
 (s/fdef get-latest-gameskip-bonus
-        :args (s/cat :gameskip-url ::gameskip-url :game-id ::cmn/gameid)
+        :args (s/cat :gameskip-url ::cmn/gameskip-url :game-id ::cmn/gameid)
         :ret ::cmn/bonus)
 
 (defn get-latest-gameskip-bonus [gameskip-url gameid]
@@ -204,6 +193,13 @@
       (into []
             (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50 "])))
 
+(comment
+
+  ;use group-by to sort these bonuses
+  (def raw-bonuses (into [] (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50 "])))
+
+  )
+
 (defn harvest-bonuses []
       (dorun
         (map
@@ -233,7 +229,7 @@
 
 (defn -main [& [port]]
       (ts/instrument)
-      (att/every 60000 (fn [_] (harvest-bonuses)) my-pool)
+      (att/every 60000 #(harvest-bonuses) my-pool :desc "bonus harvest")
       (let [port (Integer. (or port (env :port) 10555))]
            (run-jetty http-handler {:port port :join? false})))
 

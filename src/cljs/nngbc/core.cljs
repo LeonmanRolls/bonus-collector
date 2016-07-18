@@ -53,11 +53,12 @@
                             (fn []
                                 (s/gen #{(map-cursor-gen (atom {}))}))))
 
-(s/def ::app-state (s/keys :req [::cmn/bonuses]))
+(s/def ::app-state (s/keys :req [::cmn/bonuses ::cmn/gamedatas]))
 
 ;--------------------------------------------------------------------------------------------------------------
 
-(defonce app-state (atom {::cmn/bonuses []}))
+(defonce app-state (atom {::cmn/bonuses []
+                          ::cmn/gamedatas []}))
 
 (defn error-handler [{:keys [status status-text]}]
       (.log js/console (str "something bad happened: " status " " status-text)))
@@ -136,12 +137,4 @@
       root-component
       app-state
       {:target (js/document.getElementById "app")})))
-
-(comment
-
-  (GET "/bonuses"
-       {:handler (fn [resp]
-                     (println resp))})
-
-  )
 

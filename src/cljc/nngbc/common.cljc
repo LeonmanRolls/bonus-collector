@@ -42,3 +42,13 @@
                    :actual-data (s/coll-of ::bonus)
                    :empty-init vector?))
 
+(s/def ::gamename string?)
+
+(s/def ::gameskip-url
+  (s/with-gen
+    #(not (nil? (re-find #"gameskip.com" %)))
+    (fn [] (s/gen #{"https://gameskip.com/farmville-2-links/non-friend-bonus.html"}))))
+
+(s/def ::gamedata (s/keys :req-un [::gamename ::gameid ::gameskip-url]))
+
+(s/def ::gamedatas (s/coll-of ::gamedata))
