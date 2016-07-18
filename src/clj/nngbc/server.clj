@@ -138,14 +138,15 @@
         :ret ::bonus-html-division-coll)
 
 (defn get-html-divisions [gameskip-url]
-      (->
-        (let [web-client (new WebClient BrowserVersion/CHROME)]
-             (.setTimeout (.getOptions web-client) 0)
-             (.setMaxInMemory (.getOptions web-client) 4096000)
-             web-client)
-        (.getPage gameskip-url)
-        (.getBody)
-        (.getByXPath "//div[@class=\"title box\"]")))
+      (into []
+            (->
+              (let [web-client (new WebClient BrowserVersion/CHROME)]
+                   (.setTimeout (.getOptions web-client) 0)
+                   (.setMaxInMemory (.getOptions web-client) 4096000)
+                   web-client)
+              (.getPage gameskip-url)
+              (.getBody)
+              (.getByXPath "//div[@class=\"title box\"]"))))
 
 (s/fdef bonus-img-handler
         :args (s/cat :img-url ::cmn/img_url)
@@ -162,32 +163,21 @@
         :ret ::cmn/bonus)
 
 (defn get-latest-gameskip-bonus [gameskip-url gameid]
-      (let [bonus-html-division (first (get-html-divisions gameskip-url))
-            page (.click bonus-html-division)
-            bonus-url (raw-url->bonus-url (.toString (-> page (.getBaseURL))))
-            img-div (first (.getByXPath bonus-html-division "./table/tbody/tr/td/div/img"))
-            title (.getAltAttribute img-div)
-            img-url (bonus-img-handler (get (:query (url (.getAttribute img-div "data-original"))) "url"))]
+      (try
+        (let [bonus-html-division (first (get-html-divisions gameskip-url))
+              page (.click bonus-html-division)
+              bonus-url (raw-url->bonus-url (.toString (-> page (.getBaseURL))))
+              img-div (first (.getByXPath bonus-html-division "./table/tbody/tr/td/div/img"))
+              title (.getAltAttribute img-div)
+              img-url (bonus-img-handler (get (:query (url (.getAttribute img-div "data-original"))) "url"))]
 
-           {::cmn/bonus_url_string bonus-url
-            ::cmn/title title
-            ::cmn/img_url img-url
-            ::cmn/timestamp (time-stamp)
-            ::cmn/gameid gameid}))
+             {::cmn/bonus_url_string bonus-url
+              ::cmn/title title
+              ::cmn/img_url img-url
+              ::cmn/timestamp (time-stamp)
+              ::cmn/gameid gameid})
 
-(defn harvest-bonuses []
-      (dorun
-        (map
-          (fn [{:keys [gameskip_url gameid] :as gamedata}]
-              (insert-bonus!
-                (get-latest-gameskip-bonus gameskip_url gameid)))
-          (get-all-gamedata))))
-
-(defn get-all-gamedata []
-      (map
-        (fn [gamedata]
-            (update gamedata :gameid long))
-        (jdbc/query mysql-db ["SELECT * from games"])))
+        (catch Exception e nil)))
 
 (s/fdef insert-bonus!
         :args (s/cat :bonuses ::cmn/bonus))
@@ -197,9 +187,23 @@
         (jdbc/insert! mysql-db :bonuses bonus)
         (catch Exception e (println "insert exception"))))
 
+(defn get-all-gamedata []
+      (map
+        (fn [gamedata]
+            (update gamedata :gameid long))
+        (jdbc/query mysql-db ["SELECT * from games"])))
+
 (defn get-all-bonuses []
       (into []
             (jdbc/query mysql-db ["SELECT * from bonuses limit 10"])))
+
+(defn harvest-bonuses []
+      (dorun
+        (map
+          (fn [{:keys [gameskip_url gameid] :as gamedata}]
+              (let [bonus (get-latest-gameskip-bonus gameskip_url gameid)]
+                   (when bonus (insert-bonus! bonus))))
+          (get-all-gamedata))))
 
 (defroutes routes
 

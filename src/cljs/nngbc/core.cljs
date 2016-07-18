@@ -102,6 +102,7 @@
         om/IRender
         (render [_]
                 (dom/div nil
+                         (println (:bonuses app))
                          (om/build header {})
                          (om/build sidebar {})))))
 
@@ -114,4 +115,8 @@
       app-state
       {:target (js/document.getElementById "app")})))
 
+(comment
 
+
+
+  )
