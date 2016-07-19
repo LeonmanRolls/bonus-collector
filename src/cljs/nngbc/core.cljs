@@ -104,6 +104,16 @@
                                 #_(dom/div #js {:href "#" :className "song-title"}
                                            "Clicks: " clicks))))))
 
+(defn bonus-container [data owner]
+      (reify
+        om/IRender
+        (render [_]
+                (dom/div
+                  #js {:className "bonus-container" :key (rand)}
+                 (println "bonus-container: " data)
+                  )
+                  )
+        ))
 
 (s/fdef root-component
         :args (s/cat :data ::app-state :owner ::owner))
@@ -122,10 +132,12 @@
                 (dom/div nil
                          (om/build header {})
                          (om/build sidebar {})
+
                          (apply
                            dom/div
-                           #js {:className "bonus-container"}
-                           (om/build-all bonus-partial bonuses {:key :bonus_url_string}))
+                           nil
+                           (om/build-all bonus-container bonuses))
+
                          #_(om/bulid-all bonus-partial bonuses)
                          ))))
 
@@ -137,4 +149,16 @@
       root-component
       app-state
       {:target (js/document.getElementById "app")})))
+
+(common
+
+  (GET "/bonuses"
+       {:handler (fn [resp]
+                     (println "resp: " resp))})
+
+  (map
+    #(println %)
+    {3223432 ["hi" "there" "one"] 32423432423 ["two" "three"]})
+
+  )
 

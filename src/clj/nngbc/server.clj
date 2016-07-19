@@ -189,16 +189,34 @@
             (update gamedata :gameid long))
         (jdbc/query mysql-db ["SELECT * from games"])))
 
+(s/fdef gameid->gamename
+        :args ::cmn/gameid
+        :ret ::cmn/gamedata)
+
+(def gameid->gamename
+  (memoize
+    (fn [gameid]
+        (->
+          (jdbc/query mysql-db ["SELECT gamename FROM games WHERE gameid=?" gameid])
+          first
+          (:gamename)))))
+
 (defn get-all-bonuses []
-      (group-by
-        :gameid
-        (into []
-              (map
-                (fn [bonus]
-                    (->
-                      (update bonus :gameid long)
-                      (update :timestamp long)))
-                (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50 "])))))
+      (let [grouped-bonuses (group-by
+                              :gameid
+                              (into []
+                                    (map
+                                      (fn [bonus]
+                                          (->
+                                            (update bonus :gameid long)
+                                            (update :timestamp long)))
+                                      (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50"]))))]
+           (map
+             (fn [bonus]
+                 {:gameid (first bonus)
+                  :gamename (gameid->gamename (first bonus))
+                  :bonuses (last bonus)})
+             grouped-bonuses)))
 
 (defn harvest-bonuses []
       (dorun
@@ -220,6 +238,11 @@
                  :headers {"Content-Type" "text/html; charset=utf-8"}
                  :body (str (get-all-bonuses))})
 (resources "/"))
+
+(common
+
+
+  )
 
 (def http-handler
   (-> routes
