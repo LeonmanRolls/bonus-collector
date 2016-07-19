@@ -190,15 +190,15 @@
         (jdbc/query mysql-db ["SELECT * from games"])))
 
 (defn get-all-bonuses []
-      (into []
-            (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50 "])))
-
-(comment
-
-  ;use group-by to sort these bonuses
-  (def raw-bonuses (into [] (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50 "])))
-
-  )
+      (group-by
+        :gameid
+        (into []
+              (map
+                (fn [bonus]
+                    (->
+                      (update bonus :gameid long)
+                      (update :timestamp long)))
+                (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50 "])))))
 
 (defn harvest-bonuses []
       (dorun
