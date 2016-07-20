@@ -45,20 +45,17 @@
         (fn []
             (s/gen #{(cursor-gen [val])}))))
 
-#_(s/def ::bonuses-cursor (s/with-gen
-                            (s/and
-                              #(instance? om.core/MapCursor %)
-                              (s/valid? ::cmn/bonus)
-                              )
-                            (fn []
-                                (s/gen #{(map-cursor-gen (atom {}))}))))
+(s/def ::bonus-gamedata (s/keys :req-un [::cmn/gamename ::cmn/gameid ::cmn/bonuses]))
 
-(s/def ::app-state (s/keys :req [::cmn/bonuses ::cmn/gamedatas]))
+(s/def ::bonus-gamedatas (s/or
+                           :empty-init ::indexed-cursor
+                           :data-data (s/coll-of ::bonus-gamedata)))
+
+(s/def ::app-state (s/keys :req [::bonus-gamedatas]))
 
 ;--------------------------------------------------------------------------------------------------------------
 
-(defonce app-state (atom {::cmn/bonuses []
-                          ::cmn/gamedatas []}))
+(defonce app-state (atom {::bonus-gamedatas []}))
 
 (defn error-handler [{:keys [status status-text]}]
       (.log js/console (str "something bad happened: " status " " status-text)))
@@ -104,42 +101,37 @@
                                 #_(dom/div #js {:href "#" :className "song-title"}
                                            "Clicks: " clicks))))))
 
-(defn bonus-container [data owner]
+(s/fdef bonus-container
+        :args (s/cat :data ::bonus-gamedata :owner ::owner))
+
+(defn bonus-container [{:keys [gameid gamename bonuses] :as data} owner]
       (reify
         om/IRender
         (render [_]
                 (dom/div
-                  #js {:className "bonus-container" :key (rand)}
-                 (println "bonus-container: " data)
-                  )
-                  )
-        ))
+                  #js {:className "row"}
+                  (dom/h1 nil gamename)
+                  (om/build-all bonus-partial bonuses {:key :bonus_url_string})))))
 
 (s/fdef root-component
         :args (s/cat :data ::app-state :owner ::owner))
 
-(defn root-component [{:keys [bonuses] :as app} owner]
+(defn root-component [{:keys [::bonus-gamedatas] :as app} owner]
       (reify
 
         om/IWillMount
         (will-mount [_]
                     (GET "/bonuses"
-                         {:handler (fn [resp]
-                                       (om/update! app :bonuses (read-string resp)))}))
+                           {:handler (fn [resp]
+                                         (om/update! app ::bonus-gamedatas (read-string resp)))}))
 
         om/IRender
         (render [_]
                 (dom/div nil
                          (om/build header {})
                          (om/build sidebar {})
-
-                         (apply
-                           dom/div
-                           nil
-                           (om/build-all bonus-container bonuses))
-
-                         #_(om/bulid-all bonus-partial bonuses)
-                         ))))
+                         (apply dom/div #js {:className "container bonus-container"}
+                                (om/build-all bonus-container bonus-gamedatas {:key :gameid}))))))
 
 (when
   (js/document.getElementById "app")
@@ -150,15 +142,4 @@
       app-state
       {:target (js/document.getElementById "app")})))
 
-(common
-
-  (GET "/bonuses"
-       {:handler (fn [resp]
-                     (println "resp: " resp))})
-
-  (map
-    #(println %)
-    {3223432 ["hi" "there" "one"] 32423432423 ["two" "three"]})
-
-  )
 

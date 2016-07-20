@@ -202,21 +202,22 @@
           (:gamename)))))
 
 (defn get-all-bonuses []
-      (let [grouped-bonuses (group-by
-                              :gameid
-                              (into []
-                                    (map
-                                      (fn [bonus]
-                                          (->
-                                            (update bonus :gameid long)
-                                            (update :timestamp long)))
-                                      (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50"]))))]
-           (map
-             (fn [bonus]
-                 {:gameid (first bonus)
-                  :gamename (gameid->gamename (first bonus))
-                  :bonuses (last bonus)})
-             grouped-bonuses)))
+      (into []
+            (let [grouped-bonuses (group-by
+                                    :gameid
+                                    (into []
+                                          (map
+                                            (fn [bonus]
+                                                (->
+                                                  (update bonus :gameid long)
+                                                  (update :timestamp long)))
+                                            (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50"]))))]
+                 (map
+                   (fn [bonus]
+                       {:gameid (first bonus)
+                        :gamename (gameid->gamename (first bonus))
+                        :bonuses (last bonus)})
+                   grouped-bonuses))))
 
 (defn harvest-bonuses []
       (dorun
@@ -238,11 +239,6 @@
                  :headers {"Content-Type" "text/html; charset=utf-8"}
                  :body (str (get-all-bonuses))})
 (resources "/"))
-
-(common
-
-
-  )
 
 (def http-handler
   (-> routes

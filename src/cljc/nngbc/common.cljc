@@ -52,3 +52,10 @@
 (s/def ::gamedata (s/keys :req-un [::gamename ::gameid ::gameskip-url]))
 
 (s/def ::gamedatas (s/coll-of ::gamedata))
+
+(s/def ::bonus-gamedata (s/or
+                          :init vector?
+                          :data (s/keys :req-un [::gamename ::gameid ::bonuses])))
+
+
+
