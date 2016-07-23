@@ -226,6 +226,7 @@
   )
 
 (defn harvest-bonuses []
+      (println "Harvest bonuses running")
       (dorun
         (map
           (fn [{:keys [gameskip_url gameid] :as gamedata}]
@@ -252,6 +253,7 @@
       wrap-gzip))
 
 (defn -main [& [port]]
+      (println "Main ran")
       (att/every 60000 #(harvest-bonuses) my-pool :desc "bonus harvest")
       (let [port (Integer. (or port (env :port) 10555))]
            (run-jetty http-handler {:port port :join? false})))
