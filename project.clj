@@ -74,11 +74,10 @@
                 :source-paths ["src/cljs" "src/cljc"]
                 :jar true
                 :compiler {:main nngbc.core
-                           :asset-path "js/compiled/out"
                            :output-to "resources/public/js/compiled/nngbc.js"
                            :output-dir "target"
                            :source-map-timestamp true
-                           :optimizations :none
+                           :optimizations :min
                            :pretty-print false}}]}
 
   ;; When running figwheel from nREPL, figwheel will read this configuration
