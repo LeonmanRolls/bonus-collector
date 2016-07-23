@@ -6,8 +6,7 @@
 
 
   :dependencies [[org.clojure/clojure "1.9.0-alpha9"]
-                 [org.clojars.leeondamiky/clojurescript "0.0-SNAPSHOT" :scope "provided"]
-                 ;[org.clojure/clojurescript "1.9.93" :scope "provided"]
+                 ;[org.clojars.leeondamiky/clojurescript "0.0-SNAPSHOT" :scope "provided"]
                  [org.clojure/clojurescript "1.9.93"]
                  [com.cognitect/transit-clj "0.8.285"]
                  [ring "1.4.0"]
