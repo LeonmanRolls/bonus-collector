@@ -25,9 +25,8 @@
 (def my-pool (att/mk-pool))
 
 (def mysql-db
-  "postgres://oyznmdyhopqgua:hUjqAP5QBu8Ul6kbniHOMtv_89@ec2-54-243-48-204.compute-1.amazonaws.com:5432/dd3lchl2jq0q3c"
-  #_(or
-    (System/getenv "DATABASE_URL")
+  (or
+    (System/getenv "DATABASE")
     {:subprotocol "postgresql"
      :subname "//localhost:5432/nngbc"
      :user "postgres"
