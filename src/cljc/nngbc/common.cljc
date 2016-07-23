@@ -2,7 +2,7 @@
     (:require
       [cemerick.url :refer (url url-encode)]
       #?(:clj  [clojure.spec :as s]
-         :cljs [cljs.spec :as s :refer-macros [coll-of]])
+         :cljs [cljs.spec :as s :include-macros true])
       #?(:clj [clojure.spec.test :as ts])
       #?(:clj [clojure.spec.gen :as gen])
       #?(:cljs [cljs.spec.impl.gen :as gen])))
@@ -38,12 +38,9 @@
                      :full-bonus-unq (s/keys :req-un [::bonus_url_string ::title ::img_url ::timestamp ::gameid])
                      :nil nil?))
 
-#?(:clj (s/def ::bonuses (s/or
-                           :actual-data (s/coll-of ::bonus)
-                           :empty-init vector?))
-   :cljs (s/def ::bonuses (s/or
-                            :actual-data (coll-of ::bonus)
-                            :empty-init vector?)))
+(s/def ::bonuses (s/or
+                   :actual-data (s/every ::bonus)
+                   :empty-init vector?))
 
 (s/def ::gamename string?)
 
@@ -54,7 +51,7 @@
 
 (s/def ::gamedata (s/keys :req-un [::gamename ::gameid ::gameskip-url]))
 
-(s/def ::gamedatas (s/coll-of ::gamedata))
+(s/def ::gamedatas (s/every ::gamedata))
 
 (s/def ::bonus-gamedata (s/or
                           :init vector?

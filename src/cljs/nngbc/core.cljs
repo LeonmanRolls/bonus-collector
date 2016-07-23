@@ -49,7 +49,7 @@
 
 (s/def ::bonus-gamedatas (s/or
                            :empty-init ::indexed-cursor
-                           :data-data (s/coll-of ::bonus-gamedata)))
+                           :data-data (s/every ::bonus-gamedata)))
 
 (s/def ::app-state (s/keys :req [::bonus-gamedatas]))
 
