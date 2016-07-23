@@ -25,7 +25,8 @@
 (def my-pool (att/mk-pool))
 
 (def mysql-db
-  (or
+  "postgres://oyznmdyhopqgua:hUjqAP5QBu8Ul6kbniHOMtv_89@ec2-54-243-48-204.compute-1.amazonaws.com:5432/dd3lchl2jq0q3c"
+  #_(or
     (System/getenv "DATABASE_URL")
     {:subprotocol "postgresql"
      :subname "//localhost:5432/nngbc"
@@ -219,6 +220,12 @@
                         :bonuses (last bonus)})
                    grouped-bonuses))))
 
+(comment
+ mysql-db
+(jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50"])
+ (str (get-all-bonuses))
+  )
+
 (defn harvest-bonuses []
       (dorun
         (map
@@ -228,7 +235,6 @@
           (get-all-gamedata))))
 
 (defroutes routes
-
            (GET "/" _
                 {:status 200
                  :headers {"Content-Type" "text/html; charset=utf-8"}
@@ -247,7 +253,6 @@
       wrap-gzip))
 
 (defn -main [& [port]]
-      (ts/instrument)
       (att/every 60000 #(harvest-bonuses) my-pool :desc "bonus harvest")
       (let [port (Integer. (or port (env :port) 10555))]
            (run-jetty http-handler {:port port :join? false})))

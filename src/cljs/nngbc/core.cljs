@@ -136,7 +136,6 @@
 (when
   (js/document.getElementById "app")
   (do
-    (s/instrument-all)
     (om/root
       root-component
       app-state
