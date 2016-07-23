@@ -4,8 +4,11 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
+
   :dependencies [[org.clojure/clojure "1.9.0-alpha9"]
-                 [org.clojure/clojurescript "1.9.89" :scope "provided"]
+                 [org.clojars.leeondamiky/clojurescript "0.0-SNAPSHOT"]
+                 ;[org.clojure/clojurescript "1.9.93"]
+                 [org.clojure/clojurescript "1.9.93"]
                  [com.cognitect/transit-clj "0.8.285"]
                  [ring "1.4.0"]
                  [ring/ring-defaults "0.2.0"]
@@ -75,17 +78,19 @@
                            :output-to "resources/public/js/compiled/nngbc.js"
                            :output-dir "target"
                            :source-map-timestamp true
-                           :optimizations :advanced
+                           :optimizations :none
                            :pretty-print false}}]}
 
   ;; When running figwheel from nREPL, figwheel will read this configuration
   ;; stanza, but it will read it without passing through leiningen's profile
+
   ;; merging. So don't put a :figwheel section under the :dev profile, it will
   ;; not be picked up, instead configure figwheel here on the top level.
 
   :figwheel {;; :http-server-root "public"       ;; serve static assets from resources/public/
              ;; :server-port 3449                ;; default
              ;; :server-ip "127.0.0.1"           ;; default
+
              :css-dirs ["resources/public/css"]  ;; watch and update CSS
 
              ;; Instead of booting a separate server on its own port, we embed
@@ -132,3 +137,7 @@
               :hooks []
               :omit-source true
               :aot :all}})
+
+
+
+
