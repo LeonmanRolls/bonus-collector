@@ -77,7 +77,7 @@
                            :output-to "resources/public/js/compiled/nngbc.js"
                            :output-dir "target"
                            :source-map-timestamp true
-                           :optimizations :min
+                           :optimizations :whitespace
                            :pretty-print false}}]}
 
   ;; When running figwheel from nREPL, figwheel will read this configuration
