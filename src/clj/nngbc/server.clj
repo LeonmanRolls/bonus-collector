@@ -176,6 +176,9 @@
         (catch Exception e
           (println "gameskip-url: " gameskip-url)
           (println "gameid: " gameid)
+          (println "bonus-html-division: " bonus-html-division)
+          (println "page: " page)
+          (println "bonus-url: " bonus-url)
           (println "Exception in get-latest-gameskip-bonus: " e))))
 
 (s/fdef insert-bonus!
