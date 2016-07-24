@@ -196,8 +196,8 @@
         (jdbc/query mysql-db ["SELECT * from games"])))
 
 (s/fdef gameid->gamename
-        :args ::cmn/gameid
-        :ret ::cmn/gamedata)
+        :args (s/cat :gameid ::cmn/gameid)
+        :ret ::cmn/gamename)
 
 (def gameid->gamename
   (memoize
@@ -220,17 +220,10 @@
                                             (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50"]))))]
                  (map
                    (fn [bonus]
-                       (println "bonus: " bonus)
                        {:gameid (first bonus)
                         :gamename (gameid->gamename (first bonus))
                         :bonuses (last bonus)})
                    grouped-bonuses))))
-
-(comment
- mysql-db
-(jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50"])
- (str (get-all-bonuses))
-  )
 
 (defn harvest-bonuses []
       (println "Harvest bonuses running")
@@ -261,7 +254,6 @@
 
 (defn -main [& [port]]
       (println "Main ran")
-      #_(ts/instrument)
       #_(att/every 60000 #(harvest-bonuses) my-pool :desc "bonus harvest")
       (let [port (Integer. (or port (env :port) 10555))]
            (run-jetty http-handler {:port port :join? false})))
