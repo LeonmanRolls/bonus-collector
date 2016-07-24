@@ -258,6 +258,7 @@
 
 (defn -main [& [port]]
       (println "Main ran")
+      (s/instrument-all)
       (att/every 60000 #(harvest-bonuses) my-pool :desc "bonus harvest")
       (let [port (Integer. (or port (env :port) 10555))]
            (run-jetty http-handler {:port port :join? false})))
