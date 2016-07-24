@@ -173,7 +173,7 @@
               ::cmn/timestamp (time-stamp)
               ::cmn/gameid gameid})
 
-        (catch Exception e nil)))
+        (catch Exception e (println "Exception in get-latest-gameskip-bonus"))))
 
 (s/fdef insert-bonus!
         :args (s/cat :bonuses ::cmn/bonus))
