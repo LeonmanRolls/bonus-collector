@@ -161,16 +161,14 @@
 (defn get-latest-gameskip-bonus [gameskip-url gameid]
       (try
         (let [bonus-html-division (first (get-html-divisions gameskip-url))
+              _ (println "bonus-html-division: " bonus-html-division)
               page (.click bonus-html-division)
+              _ (println "page: " page)
               bonus-url (raw-url->bonus-url (.toString (-> page (.getBaseURL))))
+              _ (println "bonus-url: " bonus-url)
               img-div (first (.getByXPath bonus-html-division "./table/tbody/tr/td/div/img"))
               title (.getAltAttribute img-div)
               img-url (bonus-img-handler (get (:query (url (.getAttribute img-div "data-original"))) "url"))]
-
-             (println "bonus-html-division: " bonus-html-division)
-             (println "page: " page)
-             (println "bonus-url: " bonus-url)
-
              {::cmn/bonus_url_string bonus-url
               ::cmn/title title
               ::cmn/img_url img-url
