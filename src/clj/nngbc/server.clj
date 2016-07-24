@@ -179,6 +179,7 @@
         :args (s/cat :bonuses ::cmn/bonus))
 
 (defn insert-bonus! [bonus]
+      (println "Inserting bonus")
       (try
         (jdbc/insert! mysql-db :bonuses bonus)
         (catch Exception e (println "insert exception"))))
