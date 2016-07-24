@@ -222,7 +222,7 @@
                    (fn [bonus]
                        (println "bonus: " bonus)
                        {:gameid (first bonus)
-                        :gamename (gameid->gamename (ffirst bonus))
+                        :gamename (gameid->gamename (first bonus))
                         :bonuses (last bonus)})
                    grouped-bonuses))))
 
@@ -261,7 +261,7 @@
 
 (defn -main [& [port]]
       (println "Main ran")
-      (ts/instrument)
+      #_(ts/instrument)
       #_(att/every 60000 #(harvest-bonuses) my-pool :desc "bonus harvest")
       (let [port (Integer. (or port (env :port) 10555))]
            (run-jetty http-handler {:port port :join? false})))
