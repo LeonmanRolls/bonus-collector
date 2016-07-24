@@ -222,7 +222,7 @@
                    (fn [bonus]
                        (println "bonus: " bonus)
                        {:gameid (first bonus)
-                        :gamename (gameid->gamename (first bonus))
+                        :gamename (gameid->gamename (ffirst bonus))
                         :bonuses (last bonus)})
                    grouped-bonuses))))
 
