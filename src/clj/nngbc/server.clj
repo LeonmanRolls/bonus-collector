@@ -218,6 +218,7 @@
                                             (jdbc/query mysql-db ["SELECT * FROM bonuses ORDER BY timestamp DESC LIMIT 50"]))))]
                  (map
                    (fn [bonus]
+                       (println "bonus: " bonus)
                        {:gameid (first bonus)
                         :gamename (gameid->gamename (first bonus))
                         :bonuses (last bonus)})
