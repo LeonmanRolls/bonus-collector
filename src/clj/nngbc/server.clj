@@ -9,6 +9,7 @@
       [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
       [ring.middleware.gzip :refer [wrap-gzip]]
       [ring.middleware.logger :refer [wrap-with-logger]]
+      [ring.util.response :refer [redirect]]
       [environ.core :refer [env]]
       [ring.adapter.jetty :refer [run-jetty]]
       ;   [reaver :refer [parse extract-from text attr]]
