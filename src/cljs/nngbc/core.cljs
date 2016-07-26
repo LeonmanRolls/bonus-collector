@@ -143,7 +143,7 @@
                          (when (empty? bonus-gamedatas)
                                (om/build loading {}))
                          (apply dom/div #js {:className "container bonus-container"}
-                                (om/build-all bonus-container bonus-gamedatas {:key :gameid}))))))
+                                (om/build-all bonus-container (vec (reverse bonus-gamedatas)) {:key :gameid}))))))
 
 (when
   (js/document.getElementById "app")
