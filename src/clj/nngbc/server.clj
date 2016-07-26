@@ -78,11 +78,12 @@
 
            (ANY "/gbc/facebook/:appid/" [appid] (redirect "https://peaceful-harbor-5860.herokuapp.com/"))
 
+           (resources "/")
+
            (ANY "/*" _
                 {:status 200
                  :headers {"Content-Type" "text/html; charset=utf-8"}
-                 :body (io/input-stream (io/resource "public/index.html"))})
-           (resources "/"))
+                 :body (io/input-stream (io/resource "public/index.html"))}))
 
 (def http-handler
   (-> routes
