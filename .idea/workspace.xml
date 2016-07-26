@@ -94,8 +94,8 @@
           <file leaf-file-name="server.clj" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/clj/nngbc/server.clj">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="675">
-                  <caret line="82" column="0" selection-start-line="82" selection-start-column="0" selection-end-line="82" selection-end-column="0" />
+                <state relative-caret-position="615">
+                  <caret line="78" column="19" selection-start-line="78" selection-start-column="19" selection-end-line="78" selection-end-column="19" />
                   <folding />
                 </state>
               </provider>
@@ -125,9 +125,9 @@
         <option value="$PROJECT_DIR$/test/cljs/nngbc/test_runner.cljs" />
         <option value="$PROJECT_DIR$/project.clj" />
         <option value="$PROJECT_DIR$/src/cljc/nngbc/common.cljc" />
-        <option value="$PROJECT_DIR$/src/clj/nngbc/server.clj" />
         <option value="$PROJECT_DIR$/resources/public/css/style.css" />
         <option value="$PROJECT_DIR$/src/cljs/nngbc/core.cljs" />
+        <option value="$PROJECT_DIR$/src/clj/nngbc/server.clj" />
       </list>
     </option>
   </component>
@@ -736,8 +736,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/clj/nngbc/server.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="675">
-          <caret line="82" column="0" selection-start-line="82" selection-start-column="0" selection-end-line="82" selection-end-column="0" />
+        <state relative-caret-position="615">
+          <caret line="78" column="19" selection-start-line="78" selection-start-column="19" selection-end-line="78" selection-end-column="19" />
           <folding />
         </state>
       </provider>
