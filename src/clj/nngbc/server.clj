@@ -75,7 +75,7 @@
                  :headers {"Content-Type" "text/html; charset=utf-8"}
                  :body (str (get-all-bonuses))})
 
-           (ANY "/*" _
+           (ANY "/" _
                 {:status 200
                  :headers {"Content-Type" "text/html; charset=utf-8"}
                  :body (io/input-stream (io/resource "public/index.html"))})
