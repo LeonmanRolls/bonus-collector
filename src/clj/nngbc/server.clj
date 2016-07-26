@@ -75,12 +75,9 @@
                  :headers {"Content-Type" "text/html; charset=utf-8"}
                  :body (str (get-all-bonuses))})
 
-           (ANY "/gbc/facebook/151881468300026/" _
-                {:status 200
-                 :headers {"Content-Type" "text/html; charset=utf-8"}
-                 :body (io/input-stream (io/resource "public/index.html"))})
+           (ANY "/gbc/facebook/:appid/" [appid] (redirect "https://peaceful-harbor-5860.herokuapp.com/"))
 
-           (ANY "/" _
+           (ANY "/*" _
                 {:status 200
                  :headers {"Content-Type" "text/html; charset=utf-8"}
                  :body (io/input-stream (io/resource "public/index.html"))})

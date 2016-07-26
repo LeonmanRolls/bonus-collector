@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a9a9df8-0b89-4642-a57c-4506454c9c92" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/clj/nngbc/server.clj" afterPath="$PROJECT_DIR$/src/clj/nngbc/server.clj" />
     </list>
     <ignored path="nngbc.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -95,7 +95,7 @@
             <entry file="file://$PROJECT_DIR$/src/clj/nngbc/server.clj">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="615">
-                  <caret line="78" column="19" selection-start-line="78" selection-start-column="19" selection-end-line="78" selection-end-column="19" />
+                  <caret line="78" column="0" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -737,7 +737,7 @@
     <entry file="file://$PROJECT_DIR$/src/clj/nngbc/server.clj">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="615">
-          <caret line="78" column="19" selection-start-line="78" selection-start-column="19" selection-end-line="78" selection-end-column="19" />
+          <caret line="78" column="0" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
           <folding />
         </state>
       </provider>
