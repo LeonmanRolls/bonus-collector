@@ -50,34 +50,35 @@
 
 (s/fdef get-all-bonuses
        :args empty?
-        :ret (s/every ::cmn/bonus-gamedata))
+        :ret (s/and (s/every ::cmn/bonus-gamedata) vector?))
 
 (defn get-all-bonuses []
-      (map
-        (fn [{:keys [gameid gamename] :as game}]
-            {:gameid gameid
-             :gamename gamename
-             :bonuses (into []
-                            (map
-                              (fn [bonus]
-                                  (->
-                                    (update bonus :gameid long)
-                                    (update :timestamp long)))
-                              (jdbc/query
-                                mysql-db
-                                ["SELECT * FROM bonuses WHERE gameid=? ORDER BY timestamp DESC LIMIT 5" gameid])))})
-        (get-all-gamedata)))
+      (into []
+            (map
+              (fn [{:keys [gameid gamename] :as game}]
+                  {:gameid gameid
+                   :gamename gamename
+                   :bonuses (into []
+                                  (map
+                                    (fn [bonus]
+                                        (->
+                                          (update bonus :gameid long)
+                                          (update :timestamp long)))
+                                    (jdbc/query
+                                      mysql-db
+                                      ["SELECT * FROM bonuses WHERE gameid=? ORDER BY timestamp DESC LIMIT 20" gameid])))})
+              (get-all-gamedata))))
 
 (defroutes routes
-           (GET "/" _
-                {:status 200
-                 :headers {"Content-Type" "text/html; charset=utf-8"}
-                 :body (io/input-stream (io/resource "public/index.html"))})
-
            (GET "/bonuses" _
                 {:status 200
                  :headers {"Content-Type" "text/html; charset=utf-8"}
                  :body (str (get-all-bonuses))})
+
+           (ANY "/*" _
+                {:status 200
+                 :headers {"Content-Type" "text/html; charset=utf-8"}
+                 :body (io/input-stream (io/resource "public/index.html"))})
 (resources "/"))
 
 (def http-handler

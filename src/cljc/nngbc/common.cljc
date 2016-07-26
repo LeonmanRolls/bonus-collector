@@ -49,7 +49,7 @@
     #(not (nil? (re-find #"gameskip.com" %)))
     (fn [] (s/gen #{"https://gameskip.com/farmville-2-links/non-friend-bonus.html"}))))
 
-(s/def ::gamedata (s/keys :req-un [::gamename ::gameid ::gameskip-url]))
+(s/def ::gamedata (s/keys :req-un [::gamename ::gameid ::gameskip_url]))
 
 (s/def ::gamedatas (s/every ::gamedata))
 

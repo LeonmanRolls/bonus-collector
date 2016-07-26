@@ -2,6 +2,11 @@ a{
     color: white;
 }
 
+.loading{
+margin-top: 100px;
+text-align: center;
+}
+
 .bonus-container{
     margin-left: 80px !important;
     margin-top: 80px;

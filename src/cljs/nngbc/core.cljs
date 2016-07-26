@@ -113,6 +113,16 @@
                   (dom/h1 nil gamename)
                   (om/build-all bonus-partial bonuses {:key :bonus_url_string})))))
 
+(s/fdef loading :args (s/cat :data map? :owner ::owner))
+
+(defn loading [data owner]
+      (reify
+        om/IRender
+        (render [_]
+                (dom/div #js{:className "loading"}
+                         (dom/h1 nil "Loading...")
+                         (dom/img #js {:src "https://media.giphy.com/media/26tPgy93ssTeTTSqA/giphy.gif"})))))
+
 (s/fdef root-component
         :args (s/cat :data ::app-state :owner ::owner))
 
@@ -130,15 +140,25 @@
                 (dom/div nil
                          (om/build header {})
                          (om/build sidebar {})
+                         (when (empty? bonus-gamedatas)
+                               (om/build loading {}))
                          (apply dom/div #js {:className "container bonus-container"}
                                 (om/build-all bonus-container bonus-gamedatas {:key :gameid}))))))
 
 (when
   (js/document.getElementById "app")
+  (s/instrument-all)
   (do
     (om/root
       root-component
       app-state
       {:target (js/document.getElementById "app")})))
 
+(comment
+  (browser-repl)
+
+  (GET "/bonuses"
+       {:handler (fn [resp] (println "resp: " resp))})
+
+  )
 
