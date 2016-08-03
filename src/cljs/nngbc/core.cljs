@@ -147,7 +147,6 @@
 
 (when
   (js/document.getElementById "app")
-  (s/instrument-all)
   (do
     (om/root
       root-component
