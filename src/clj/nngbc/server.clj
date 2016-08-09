@@ -24,19 +24,9 @@
 ;alter number of html divisions based on env
 
 (def mysql-db
-  "postgres://oyznmdyhopqgua:hUjqAP5QBu8Ul6kbniHOMtv_89@ec2-54-243-48-204.compute-1.amazonaws.com:5432/dd3lchl2jq0q3c?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-  #_(or
-    (System/getenv "DATABASE")
-    {:subprotocol "postgresql"
-     :subname "//localhost:5432/nngbc"
-     :user "postgres"
-     :password "1fishy4me"}))
+  "postgres://oyznmdyhopqgua:hUjqAP5QBu8Ul6kbniHOMtv_89@ec2-54-243-48-204.compute-1.amazonaws.com:5432/dd3lchl2jq0q3c?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory")
 
 ;Types ===================================================================================
-
-
-
-
 ;=========================================================================================
 
 (s/fdef get-all-gamedata
