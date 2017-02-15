@@ -22,12 +22,7 @@
     (:gen-class))
 
 ;alter number of html divisions based on env
-
-(def mysql-db
-  "postgres://oyznmdyhopqgua:hUjqAP5QBu8Ul6kbniHOMtv_89@ec2-54-243-48-204.compute-1.amazonaws.com:5432/dd3lchl2jq0q3c?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory")
-
-;Types ===================================================================================
-;=========================================================================================
+(def mysql-db (System/getenv "DATABASE"))
 
 (s/fdef get-all-gamedata
         :args empty?
