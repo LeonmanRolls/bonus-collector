@@ -1,5 +1,6 @@
 # nngbc
 
+Set DATABASE config var in your environment before starting
 
 ## Development
 
